@@ -345,6 +345,35 @@
   body.focus .board-area{ max-width:none;width:100%;margin:0 }  /* drop auto margin so it fills */
   body.focus .hue-picker{ display:none }
 
+  /* ---- knowledge rail (mirrors the hue picker, on the right) ---- */
+  .board-area{ position:relative }
+  .res-rail{ display:flex;flex-direction:column;justify-content:center;gap:clamp(8px,1.8vw,13px);
+    flex:0 0 auto;padding:2px }
+  .res-stud{ width:clamp(30px,7vw,38px);height:clamp(30px,7vw,38px);border-radius:50%;
+    padding:0;cursor:pointer;position:relative;flex:0 0 auto;color:var(--brass);
+    background:radial-gradient(80% 80% at 38% 30%, var(--recess) 0%, var(--recess-lo) 78%);
+    box-shadow:inset 0 4px 9px -4px #000000d0, inset 0 0 0 1px var(--brass-dim), 0 1px 2px #00000070;
+    display:inline-flex;align-items:center;justify-content:center;
+    transition:box-shadow .14s, transform .08s, color .12s }
+  .res-stud:hover{ transform:translateY(-1px);color:var(--brass-bright);
+    box-shadow:inset 0 4px 9px -4px #000000d0, inset 0 0 0 1px var(--brass), 0 0 14px -3px var(--brass) }
+  .res-stud:focus-visible{ outline:none;color:var(--brass-bright);
+    box-shadow:inset 0 0 0 2px var(--brass-bright), 0 0 16px -3px var(--brass-bright) }
+  .res-ico{ width:54%;height:54% }
+  .res-stud .res-label{ position:absolute;right:calc(100% + 8px);white-space:nowrap;
+    font-size:11px;letter-spacing:.04em;color:var(--ink-dim);
+    background:#241710e8;padding:4px 8px;border-radius:7px;border:1px solid #00000050;
+    opacity:0;transform:translateX(4px);pointer-events:none;transition:opacity .12s, transform .12s }
+  .res-stud:hover .res-label, .res-stud:focus-visible .res-label{ opacity:1;transform:translateX(0) }
+  .res-stud .badge-dot{ top:-4px;right:-4px }
+  body.focus .res-rail{ display:none }
+  @media (max-width:520px){
+    .board-area{ flex-wrap:wrap }
+    .res-rail{ order:3;flex-direction:row;justify-content:center;width:100%;margin-top:10px;flex-basis:100% }
+    .res-stud .res-label{ right:auto;top:calc(100% + 6px);transform:translateY(-4px) }
+    .res-stud:hover .res-label,.res-stud:focus-visible .res-label{ transform:translateY(0) }
+  }
+
   /* ---- learning feature ---- */
   .badge{
     display:none;min-width:16px;height:16px;padding:0 4px;border-radius:9px;
@@ -446,6 +475,7 @@
       <span class="who" id="whoBot">You</span>
     </div>
   </div>
+    <div class="res-rail" id="resRail" role="group" aria-label="Learning resources"></div>
   </div>
 
   <p class="status" id="status">Your move — pick one of your houses to sow.</p>
@@ -1189,6 +1219,64 @@ function hueRenderPicker(){
   }
 }
 
+/* ===========================================================================
+   Resource module — knowledge rail + lesson card + doc overlays.
+   Reuses LEARN, learnRenderDemo, fillCup, the .learn-screen shell, and tokens.
+   =========================================================================== */
+const RES_GLYPHS = {
+  spark:'<path d="M12 3v18M3 12h18M6 6l12 12M18 6L6 18" stroke-width="1.4"/>',
+  sheets:'<rect x="4" y="3" width="12" height="15" rx="1.5"/><rect x="8" y="6" width="12" height="15" rx="1.5"/><path d="M11 11h6M11 14h6"/>',
+  report:'<rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M8 7h8M8 10h8"/><path d="M8 17v-3M11 17v-5M14 17v-2"/>',
+  nodes:'<circle cx="6" cy="7" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="12" cy="18" r="2.2"/><path d="M7.8 8.4 10.6 16M16.4 7.6 13.4 16M8 7.4h7.8"/>',
+  book:'<path d="M12 6c-2-1.4-5-1.4-7-0.6v12c2-0.8 5-0.8 7 0.6 2-1.4 5-1.4 7-0.6v-12c-2-0.8-5-0.8-7 0.6Z"/><path d="M12 6v13"/>'
+};
+const RESOURCES = {
+  papers:{ glyph:'sheets', label:'Research papers', docs:[
+    {file:'docs/research/papers/Allis-1994-Searching-for-Solutions-in-Games-and-AI.pdf', title:'Searching for Solutions in Games & AI', meta:'Allis · 1994'},
+    {file:'docs/research/papers/ayo-the-awari-player-or-how-better-representation-trumps-13x1yl1k0k.pdf', title:'Ayo the Awari Player: Better Representation Trumps', meta:'Heyden'},
+    {file:'docs/research/papers/Broline-Loeb-1995-Combinatorics-of-Mancala-Ayo-Tchoukaillon.pdf', title:'Combinatorics of Mancala-type Games', meta:'Broline & Loeb · 1995'},
+    {file:'docs/research/papers/CG2000-Proceedings-LNCS2063-Computers-and-Games.pdf', title:'Computers and Games (CG2000 Proceedings)', meta:'LNCS 2063 · 2000'},
+    {file:'docs/research/papers/Herik-Uiterwijk-Rijswijck-2002-Games-Solved-Now-and-in-the-Future.pdf', title:'Games Solved: Now and in the Future', meta:'van den Herik et al. · 2002'},
+    {file:'docs/research/papers/Heule-Rothkrantz-Solving-Games-Dependence-of-Applicable-Procedures.pdf', title:'Solving Games: Dependence of Applicable Procedures', meta:'Heule & Rothkrantz'},
+    {file:'docs/research/papers/Irving-Donkers-Uiterwijk-2000-Solving-Kalah.pdf', title:'Solving Kalah', meta:'Irving et al. · 2000'},
+    {file:'docs/research/papers/Lincke-2002-Computational-Limits-Exhaustive-Search.pdf', title:'Computational Limits of Exhaustive Search', meta:'Lincke · 2002'},
+    {file:'docs/research/papers/Set-Based-Retrograde-Analysis-2024.pdf', title:'Set-Based Retrograde Analysis', meta:'2024'},
+    {file:'docs/research/papers/Supervised-vs-Unsupervised-ML-Awale-Mancala-Ayo-Player.pdf', title:'Supervised vs Unsupervised ML for an Awale Player', meta:'ML study'}
+  ]},
+  reports:{ glyph:'report', label:'Reports', docs:[
+    {file:'docs/research/REPORT-01-foundations.md', title:'Foundational papers'},
+    {file:'docs/research/REPORT-02-endgame-database-spec.md', title:'Endgame database'},
+    {file:'docs/research/REPORT-03-combinatorics-broline-loeb.md', title:'Combinatorics'},
+    {file:'docs/research/REPORT-04-solving-procedures-heule-rothkrantz.md', title:'Solving procedures'},
+    {file:'docs/research/REPORT-05-ml-player-randle.md', title:'ML player'}
+  ]},
+  overview:{ glyph:'nodes', label:'Overview', docs:[
+    {file:'docs/oware-mathematical-architecture.md', title:'Mathematical architecture'}
+  ]},
+  bibliography:{ glyph:'book', label:'Bibliography', docs:[
+    {file:'docs/research/BIBLIOGRAPHY.md', title:'Bibliography'}
+  ]}
+};
+const RES_ORDER = ['papers','reports','overview','bibliography'];
+function resGlyphSvg(id){ return '<svg class="res-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" aria-hidden="true">'+(RES_GLYPHS[id]||'')+'</svg>'; }
+function resStudEl(key){ return document.querySelector('.res-stud[data-key="'+key+'"]'); }
+function resMakeStud(key, glyph, label, withBadge){
+  const b=document.createElement('button'); b.type='button'; b.className='res-stud';
+  b.dataset.key=key; b.title=label; b.setAttribute('aria-label', label);
+  b.innerHTML=resGlyphSvg(glyph)+'<span class="res-label">'+label+'</span>'+
+    (withBadge?'<span class="badge badge-dot" id="lessonBadge"></span>':'');
+  return b;
+}
+function resRailRender(){
+  const host=$('resRail'); if(!host) return; host.innerHTML='';
+  host.appendChild(resMakeStud('lesson','spark','Lesson of the turn', true));
+  for(const k of RES_ORDER){ host.appendChild(resMakeStud(k, RESOURCES[k].glyph, RESOURCES[k].label, false)); }
+  resStudEl('lesson').onclick=lessonOpen;          /* defined in Task 3 */
+  for(const k of RES_ORDER) resStudEl(k).onclick=()=>resOpen(k);   /* defined in Tasks 5–6 */
+}
+function lessonOpen(){ /* Task 3 */ }
+function resOpen(key){ /* Tasks 5–6 */ }
+
 $('newgame').onclick=newGame;
 $('mode').onchange=newGame;
 $('difficulty').onchange=()=>{ difficulty=$('difficulty').value; };
@@ -1208,6 +1296,7 @@ $('fLearn').onclick=learnOpenFull;
 
 learnUpdateBadge();
 hueApply(hueLoad()); hueRenderPicker();
+resRailRender();
 renderRecords();
 newGame();
 </script>
