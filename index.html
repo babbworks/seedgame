@@ -1329,6 +1329,57 @@ function lessonRender(){
 }
 function lessonOpen(){ lessonMarkSeen(); $('lessonCard').hidden=false; lessonRender(); $('lessonCard').focus(); }
 function lessonClose(){ learnDemoGen++; const c=$('lessonCard'); c.hidden=true; c.innerHTML=''; }
+/* ---- markdown renderer (dependency-free) ---- */
+function mdEscape(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function mdInline(s){
+  return mdEscape(s)
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+    .replace(/(^|[^*])\*([^*]+)\*/g,'$1<em>$2</em>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+}
+function mdRender(text){
+  const lines=text.replace(/\r\n/g,'\n').split('\n'); const out=[]; let i=0;
+  const flushPara=(buf)=>{ if(buf.length){ out.push('<p>'+mdInline(buf.join(' '))+'</p>'); buf.length=0; } };
+  const para=[];
+  while(i<lines.length){
+    let ln=lines[i];
+    if(/^```/.test(ln)){ flushPara(para); const code=[]; i++;
+      while(i<lines.length && !/^```/.test(lines[i])){ code.push(mdEscape(lines[i])); i++; }
+      i++; out.push('<pre class="md-code"><code>'+code.join('\n')+'</code></pre>'); continue; }
+    if(/^\s*\|.*\|\s*$/.test(ln) && i+1<lines.length && /^\s*\|[\s:|-]+\|\s*$/.test(lines[i+1])){
+      flushPara(para); const head=ln.split('|').slice(1,-1).map(c=>c.trim()); i+=2;
+      let rows='';
+      while(i<lines.length && /^\s*\|.*\|\s*$/.test(lines[i])){
+        const cells=lines[i].split('|').slice(1,-1).map(c=>'<td>'+mdInline(c.trim())+'</td>'); rows+='<tr>'+cells.join('')+'</tr>'; i++; }
+      out.push('<table class="md-table"><thead><tr>'+head.map(h=>'<th>'+mdInline(h)+'</th>').join('')+'</tr></thead><tbody>'+rows+'</tbody></table>'); continue; }
+    let m;
+    if((m=/^(#{1,4})\s+(.*)$/.exec(ln))){ flushPara(para); const n=m[1].length; out.push('<h'+n+'>'+mdInline(m[2])+'</h'+n+'>'); i++; continue; }
+    if(/^\s*([-*+])\s+/.test(ln)){ flushPara(para); const items=[];
+      while(i<lines.length && /^\s*([-*+])\s+/.test(lines[i])){ items.push('<li>'+mdInline(lines[i].replace(/^\s*([-*+])\s+/,''))+'</li>'); i++; }
+      out.push('<ul>'+items.join('')+'</ul>'); continue; }
+    if(/^\s*\d+\.\s+/.test(ln)){ flushPara(para); const items=[];
+      while(i<lines.length && /^\s*\d+\.\s+/.test(lines[i])){ items.push('<li>'+mdInline(lines[i].replace(/^\s*\d+\.\s+/,''))+'</li>'); i++; }
+      out.push('<ol>'+items.join('')+'</ol>'); continue; }
+    if(/^\s*>\s?/.test(ln)){ flushPara(para); const q=[];
+      while(i<lines.length && /^\s*>\s?/.test(lines[i])){ q.push(mdInline(lines[i].replace(/^\s*>\s?/,''))); i++; }
+      out.push('<blockquote>'+q.join('<br>')+'</blockquote>'); continue; }
+    if(/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(ln)){ flushPara(para); out.push('<hr>'); i++; continue; }
+    if(/^\s*$/.test(ln)){ flushPara(para); i++; continue; }
+    para.push(ln); i++;
+  }
+  flushPara(para); return out.join('\n');
+}
+window.__mdSelfTest=function(ok){
+  const h=mdRender('# Title\n\nA **bold** and `code` line.\n\n- one\n- two\n\n| A | B |\n|---|---|\n| 1 | 2 |\n');
+  ok('md heading', /<h1>Title<\/h1>/.test(h));
+  ok('md bold', /<strong>bold<\/strong>/.test(h));
+  ok('md code', /<code>code<\/code>/.test(h));
+  ok('md list', /<ul><li>one<\/li>/.test(h));
+  ok('md table', /<table class="md-table">[\s\S]*<td>1<\/td>/.test(h));
+  ok('md escape', mdRender('<script>').indexOf('&lt;script&gt;')>=0);
+};
+
 function resOpen(key){ /* Tasks 5–6 */ }
 function resIsOpen(){ return false; }
 function resClose(){}
