@@ -177,39 +177,72 @@ emit a compact binary, and lazy-load it (or a gzip slice per layer) in the brows
 
 ---
 
-## 6. ★ Your turn — the one decision that defines correctness
+## 6. Resolved — the convention `index.html` actually uses
 
-I've scaffolded everything except the single piece where Oware's rules make a genuine
-*modelling choice*: **what value to assign when optimal play never captures** (a cycle),
-and the matching **terminal value** when a side has no move.
+The original draft left the terminal/cycle convention to a human decision because variants
+differ (own-side vs. last-mover-takes-all). **Reading the engine settles it** — there is no
+remaining choice. `collectSides` (lines 607–609) divides every leftover seed to *its own
+side's owner*:
 
-In the real rules, a game that can't progress ends by **dividing the remaining on-board
-seeds** — and which seeds go to whom depends on the variant (standard Oware: each player
-takes the seeds on their *own* side; some rulesets award all remainder to the last mover).
-This convention is the boundary condition the whole fixed-point converges to, so it
-*defines* every value in the database.
+```js
+function collectSides(s){
+  for(let i=0;i<HOUSES;i++){ if(s.h[i]>0){ s.score[ i<SIDE?0:1 ] += s.h[i]; s.h[i]=0; } }
+}
+```
 
-Please implement `terminalValue(h, turn, rules)` (and decide the cyclic-draw rule it
-implies). ~5–10 lines. Consider:
-- **No-move terminal:** when `turn` has no legal move, who gets the seeds still on the
-  board? (Check the engine's `isOver`/`collectSides` at lines ~607–628 — match it exactly,
-  or the DB will disagree with live play.)
-- **Cycle/repetition:** if a position's value stays `undefined` after the fixed point, it's
-  an infinite no-capture line — apply the same division rule.
-- **Variant flag:** the engine already has a `'34'` vs `'23'` capture rule (`capturable`,
-  line 537); your function and the build must be parameterised by it (one DB per ruleset).
+and `isOver` (611–623) invokes that **same** function in all three non-store terminals —
+board empty (614), cycle cutoff `ncp ≥ cycleLimit` (615–617), and no-legal-move (618–620).
+So the boundary condition is a single function, and the cyclic-draw rule is *identical* to
+the no-move rule. Both reduce to: **the side to move keeps the seeds on its own side.**
 
-Tell me which division convention `index.html` actually uses and I'll lock the indexing
-math and generate the offline builder script around it.
+### 6.1 The locked recurrence
+
+With `V(h,turn)` = on-board seeds the mover ultimately captures (§2.1) and `S = boardSeeds`,
+every board seed is eventually allocated, so `V(h,turn) + V(opp-successor) = S`. The
+per-move algebra then cancels the captured count entirely:
+
+```
+yield(m) = captured_c + (S' − V(h',turn')),   S' = S − c
+         = c + (S − c) − V(h',turn')  =  S − V(h',turn')
+⟹  V(h,turn) = S − min over legal m of V(applyMove(h,turn,m))
+```
+
+Capture moves point `V(h',turn')` at an *already-solved smaller layer*; no-capture moves
+point within the current layer (the fixed-point part). The boundary that seeds it all:
+
+```js
+// On-board seeds the side-to-move keeps when the game can't progress.
+// Matches collectSides exactly: each side keeps seeds on its own half.
+function terminalValue(h, turn){ return sideSeeds({h}, turn); }   // = Σ h[i] for i on turn's side
+```
+
+Used both for **no-move terminals** and for any position still unresolved after the
+in-layer fixed point (a pure no-capture cycle) — the engine's `cycleLimit` cuts there and
+calls `collectSides`, so the theoretical value is exactly `terminalValue`.
+
+### 6.2 One genuine caveat (not a blocker): `firstto` truncation
+
+`isOver` also ends the game when a *store* reaches `rules.target` (default 25 = majority of
+48), and in that branch it does **not** call `collectSides` — leftover board seeds are
+abandoned. The DB is deliberately store-independent (§2.1), so it assumes play continues
+until the board resolves. This never flips a **win/draw/loss** sign (reaching 25 already
+means the majority is secured), but it can make the DB's *margin* differ from a live game
+that stops early. We accept this: `result = sign(finalMover − finalOpp)` in §2.1 is correct;
+only the exact point spread is approximate in target-truncated lines.
+
+### 6.3 Per-ruleset builds
+
+`capturable` (537) switches `'34'`/`'23'`, and `grandslam` has four modes (571–582). These
+change `applyMove`, not the boundary convention — so one DB per `(capture, grandslam)` pair,
+built by reusing the engine's own `simulate`/`applyMove`.
 
 ---
 
 ## 7. Validation plan
-- **Self-consistency:** for every position, `V(h,turn) + V'(opponent-to-move successor)`
-  must reconcile (no value exceeds `boardSeeds`).
-- **Round-trip:** `rank(unrank(r,s),s) === r` for random `r` in each layer.
-- **Cross-check vs. search:** for low layers (s ≤ 8), brute-force negamax with no DB and
-  assert it matches `dbProbe` on thousands of random positions.
-- **Known result:** with N large enough, the 4-per-pit start should evaluate to a **draw**
+- **Round-trip:** `rank(unrank(r,s),s) === r` for random `r` in each layer (pure indexing).
+- **Cross-check vs. search:** for low layers (s ≤ 10), brute-force negamax with no DB and
+  assert it matches `dbProbe` on thousands of random positions — this is the real
+  correctness gate, since it catches any error in the loopy fixed-point or the recurrence.
+- **Self-consistency:** `0 ≤ V(h,turn) ≤ boardSeeds`, and `V(h,turn) + V(opp-succ) = S`.
+- **Known result:** with `N` large enough, the 4-per-pit start should evaluate to a **draw**
   (the solved value of Awari — see `REPORT-01`).
-```
