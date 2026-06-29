@@ -61,6 +61,59 @@ that feature even if they aren't built yet.
   places where Oware is popular (Ghana, the Caribbean). Extends the existing
   board-hue picker into full scene/atmosphere theming.
 
+## Rules & options (full optionality)
+
+> **Guiding rule (user, strong):** *anywhere we observe rule variation — or anywhere
+> there's a sensible choice in how to resolve a situation — expose it as a user option in
+> the rules menu rather than hard-coding one answer.* Build toward full optionality:
+> toggles/buttons for discrete variants, sliding scales for continuous behaviour.
+
+- **Terminal & repetition resolution (highest priority — research-confirmed variation).**
+  `REPORT-06` §3 (Lincke) and `REPORT-07` (van der Goot) document that **academic Awari
+  resolves the endgame differently from our current engine**:
+  - *No legal move:* academic = **opponent captures all** remaining seeds; `index.html` =
+    **each player keeps their own row** (`collectSides`).
+  - *Repetition/cycle:* academic = **seeds split** between players (board value 0);
+    `index.html` = **each keeps own row**.
+  Expose both as selectable conventions in the rules menu (e.g. *No-move → [Own row | Opponent
+  takes all]*, *Repetition → [Own row | Split evenly | Last mover takes all]*). **[touches:
+  rules menu, REPORT-02 endgame database]** — each convention is a *different game*, so the
+  endgame DB must be built per-convention (one DB per ruleset; see `REPORT-02` §6.3). Picking
+  the academic convention is also what makes the literature's "Awari is a draw" apply.
+- **Existing engine flags to surface as buttons.** `readRules()` already carries variants that
+  aren't all exposed in the UI yet: capture rule **2-3 vs 3-4** (`capturable`), **grand-slam**
+  handling (`nocap` / `forbid` / `oppkeeps` / `leavelast`), end mode **first-to-25 vs
+  all-capture** (`target` 25 vs 49). Promote each to a labelled control.
+- **Sliding scales (continuous options).** Candidates: **cycle limit** (`cycleLimit`, plies
+  before a repetition is force-resolved); **AI search depth / strength**; **AI randomness or
+  "blunder rate"** (how often the computer plays a sub-optimal move, for teaching/handicap);
+  later, a single **difficulty** slider that bundles depth + endgame-DB on/off + blunder rate.
+  **[touches: REPORT-05 / REPORT-08]** — strength vs. endgame-DB use is exactly what the ML
+  reports analyse; the slider is the user-facing version of "with/without database."
+- **One DB per ruleset.** Because capture rule + grand-slam + terminal convention all change
+  the game, any shipped endgame database is keyed to a specific combination. The rules menu
+  and the DB builder must agree on the active ruleset (see `REPORT-02` §6.3).
+
+## Metrics & ratings (combinatorial "distance travelled")
+
+- **Game-complexity / combinatorics rating** — surface a single (or small multi-) number that
+  shows the user *how far into the space of combinations and complexity* their current game has
+  travelled — an alternative lens on "length" that isn't just move-count or turns. Derived from
+  the combinatorics research; **scan the report docs to fix the exact formula before building.**
+  Source material already in hand:
+  - `REPORT-03` (Broline-Loeb) — per-layer configuration counts (`C(s+11, 11)` ways to place
+    `s` seeds in 12 pits) and cumulative `C(N+12, 12)`; plus the `n²/π` occupancy mathematics.
+    A natural basis for "states reachable at the current seed count / how rare this position is."
+  - `REPORT-01` (Games Solved) — the headline complexity figures: Awari state-space ≈ **10¹²**,
+    game-tree ≈ **10³²**. Good for normalising a 0–100 "complexity travelled" scale.
+  - `REPORT-04` (Heule-Rothkrantz) — *solution size* / *decision complexity* framing, if we want
+    the rating to express "how hard *this* position is" rather than raw count.
+  Sketch (approximate, to be confirmed against the reports): as seeds leave the board the live
+  layer size `C(boardSeeds+11,11)` *shrinks* — so a rating could read the *convergence* of the
+  game (how far down the layer ladder we've descended) and/or the cumulative branching seen so
+  far. **[touches: REPORT-01, REPORT-03, REPORT-04; Representation modes — Formula mode on the
+  board]** — pairs naturally with the on-board formula overlay and the resource rail.
+
 ## Side games
 
 - **Quick-glance row-sum guessing** — a side game: show a row, hide it after N
