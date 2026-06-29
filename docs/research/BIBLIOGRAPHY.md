@@ -47,6 +47,12 @@ count never increases until a capture), which is exactly why retrograde analysis
 Modern (symbolic/BDD-style) take on the retrograde-analysis algorithm that solved Awari.
 Useful if you ever want to compute or compress your own endgame tablebases.
 
+### van der Goot (2000) — *Awari Retrograde Analysis* ✅
+`papers/CG2000-Proceedings-LNCS2063-Computers-and-Games.pdf` (chapter) · CG 2000, LNCS 2063
+A focused account of building an Awari endgame database by retrograde analysis — closer to
+our scale than the full Romein & Bal solve, and a direct how-to companion to `REPORT-02`.
+*(Bonus paper obtained inside the CG 2000 proceedings.)*
+
 ### Romein & Bal (2002) — *Awari Is Solved* — ICGA Journal 25(3):162–165 🔒
 Link: <https://research.vu.nl/en/publications/awari-is-solved>
 The 4-page announcement: Awari is a **draw**; the unique optimal opening is the
@@ -59,11 +65,12 @@ DOI: 10.1109/MC.2003.1236468
 The full method paper. Computed all **889 billion** reachable positions; the master
 database is 204 billion entries / 178 GB. The definitive engineering account of the solve.
 
-### Lincke (2002) — *Exploring the Computational Limits of Large Exhaustive Search Problems* 🔒
-ETH Zürich PhD thesis. Link: <https://www.research-collection.ethz.ch/handle/20.500.11850/146939>
+### Lincke (2002) — *Exploring the Computational Limits of Large Exhaustive Search Problems* ✅
+`papers/Lincke-2002-Computational-Limits-Exhaustive-Search.pdf` · 118 pp · ETH Zürich PhD thesis
 Author of **Marvin** (Computer Olympiad 2000 gold). Deep treatment of retrograde analysis
-with limited memory and the at-least-draw / at-most-draw / cycle-draw value representation.
-*(ETH site is a JS app; download the PDF manually from the handle page.)*
+with limited memory and the at-least-draw / at-most-draw / cycle-draw value representation —
+the single most relevant gated item now in hand, and a primary source for `REPORT-02`'s
+database design. *(Retrieved from the ETH Research Collection DSpace API.)*
 
 ### Lincke & Marzetta (2000) — *Large Endgame Databases with Limited Memory Space* — ICGA Journal 23(3):131–138 🔒
 DOI: 10.3233/ICG-2000-23302. The disk-I/O-efficient, one-bit-per-position DB algorithm
@@ -73,11 +80,12 @@ that powered Awari engines before the full solve.
 
 ## Tier 3 — Evaluation functions, learning & AI players
 
-### van Rijswijck (2000) — *Learning from Perfection: A Data Mining Approach to Evaluation Function Learning in Awari* 🔒
-CG 2000, LNCS 2063. Link: <https://link.springer.com/chapter/10.1007/3-540-45579-5_8>
+### van Rijswijck (2000) — *Learning from Perfection: A Data Mining Approach to Evaluation Function Learning in Awari* ✅
+`papers/CG2000-Proceedings-LNCS2063-Computers-and-Games.pdf` (Chapter 8) · CG 2000, LNCS 2063
 Mines the *perfect* endgame databases to learn a human-free evaluation function (engine
 **Bambam**, U. Alberta). Directly relevant if you want a strong heuristic AI without
-shipping a 178 GB tablebase. *(Springer-gated; LNCS proceedings also on archive.org.)*
+shipping a 178 GB tablebase. *(Obtained inside the full CG 2000 proceedings, downloaded
+unrestricted from the Internet Archive.)*
 
 ### Supervised vs. Unsupervised ML for an Awale/Mancala/Ayo Player ✅
 `papers/Supervised-vs-Unsupervised-ML-Awale-Mancala-Ayo-Player.pdf` · 10 pp · arXiv:1309.1543
@@ -88,10 +96,12 @@ reference for a web-game-sized AI opponent.
 Maastricht University survey of the whole mancala family (rules taxonomy, complexity,
 solving status). Link: <https://www.researchgate.net/publication/239523032>
 
-### Irving, Donkers & Uiterwijk (2000) — *Solving Kalah* — ICGA Journal 23(3):139–146 🔒
-Link: <https://www.researchgate.net/publication/2911672_Solving_Kalah>
+### Irving, Donkers & Uiterwijk (2000) — *Solving Kalah* — ICGA Journal 23(3):139–146 ✅
+`papers/Irving-Donkers-Uiterwijk-2000-Solving-Kalah.pdf` · 9 pp
 Sister result on the Kalah variant (Kalah(6,6): first player wins by 2). Good contrast
-for *how the variant's rules change the game value*.
+for *how the variant's rules change the game value*. Uses iterative-deepening MTD(f) with
+move ordering, transposition tables, futility pruning, enhanced transposition cut-off, and
+endgame databases. *(Retrieved from the first author's site, naml.us.)*
 
 ---
 
@@ -104,3 +114,17 @@ for *how the variant's rules change the game value*.
 `🔒` = no open PDF found via automated download (paywall, ResearchGate login, or a
 JavaScript-only repository). Links point at the most stable landing page; most are
 retrievable through an institutional login or by emailing the authors.
+
+### Acquisition round — 2026-06-28
+Pulled four previously-gated items into `papers/`:
+- **Lincke (2002)** thesis — via the ETH Research Collection DSpace REST API.
+- **Irving et al. (2000)** *Solving Kalah* — from the first author's site (naml.us).
+- **van Rijswijck (2000)** *Learning from Perfection* **and** **van der Goot (2000)**
+  *Awari Retrograde Analysis* — both inside the **CG 2000 proceedings** (LNCS 2063),
+  downloaded unrestricted from the Internet Archive.
+
+**Still gated 🔒 (no open PDF located):** Romein & Bal (2002) *Awari Is Solved* and (2003)
+*Parallel Retrograde Analysis* — ICGA/IEEE, confirmed no open-access PDF via Semantic
+Scholar; Lincke & Marzetta (2000) — ICGA; Donkers, Uiterwijk & de Voogt — *Mancala Games*
+survey (ResearchGate). Their key results are nonetheless covered secondhand by the Lincke
+thesis, the ML survey (`REPORT-05`), and Heule & Rothkrantz (`REPORT-04`).
