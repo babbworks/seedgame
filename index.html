@@ -460,6 +460,35 @@
   .lesson-x:hover{ color:var(--brass-bright) }
   .lesson-card:focus-visible{ outline:2px solid var(--brass-bright);outline-offset:3px }
   @media (prefers-reduced-motion: reduce){ .lesson-card{ animation:none } }
+
+  /* ---- resource overlays (reuse .learn-screen shell) + markdown typography ---- */
+  .res-body{ display:grid;grid-template-columns:minmax(180px,240px) 1fr;gap:clamp(14px,2.4vw,26px);margin-top:14px;align-items:start }
+  .res-body.single{ grid-template-columns:1fr }
+  @media (max-width:640px){ .res-body{ grid-template-columns:1fr } }
+  .res-index{ display:flex;flex-direction:column;gap:4px }
+  .res-index button{ text-align:left;border:1px solid transparent;background:transparent;color:var(--ink-dim);
+    cursor:pointer;font:inherit;font-size:13px;padding:9px 11px;border-radius:9px }
+  .res-index button:hover{ background:#ffffff08 }
+  .res-index button.sel{ background:#ffffff0e;border-color:#00000050;color:var(--ink) }
+  .res-index .meta{ display:block;font-size:11px;color:var(--ink-faint) }
+  .res-pane{ min-width:0 }
+  .res-status{ color:var(--ink-faint);font-size:14px;padding:18px 0 }
+  .res-status a{ color:var(--brass) }
+  .md-body{ max-width:72ch;color:var(--ink-dim);font-size:15px;line-height:1.65 }
+  .md-body h1,.md-body h2,.md-body h3,.md-body h4{ font-family:"Fraunces",serif;color:var(--ink);line-height:1.2;margin:1.4em 0 .5em }
+  .md-body h1{ font-size:clamp(22px,3.6vw,30px) } .md-body h2{ font-size:clamp(19px,3vw,24px) } .md-body h3{ font-size:17px }
+  .md-body code{ font-family:"Spline Sans Mono",monospace;color:var(--brass-bright);font-size:.92em }
+  .md-body pre.md-code{ background:#00000040;border:1px solid #00000050;border-radius:10px;padding:12px 14px;overflow:auto }
+  .md-body pre.md-code code{ color:var(--ink) }
+  .md-body a{ color:var(--brass) } .md-body a:hover{ color:var(--brass-bright) }
+  .md-body ul,.md-body ol{ padding-left:1.3em } .md-body li{ margin:.25em 0 }
+  .md-body blockquote{ border-left:2px solid var(--brass-dim);margin:1em 0;padding:.2em 0 .2em 1em;color:var(--ink-faint) }
+  .md-body hr{ border:0;border-top:1px solid #ffffff14;margin:1.6em 0 }
+  .md-body table.md-table{ width:auto;font-family:inherit;font-size:13px;margin:1em 0 }
+  .md-body table.md-table th{ color:var(--brass-dim) } .md-body table.md-table td,.md-body table.md-table th{ text-align:left;padding:5px 12px 5px 0 }
+  .res-pdf{ width:100%;height:78vh;border:1px solid #00000050;border-radius:12px;background:#0000003a }
+  .res-newtab{ display:inline-block;margin-top:8px;color:var(--brass);font-size:13px;text-decoration:none }
+  .res-newtab:hover{ color:var(--brass-bright) }
 </style>
 </head>
 <body>
@@ -474,6 +503,7 @@
 <div class="learn-screen" id="learnOverlay" role="dialog" aria-modal="true" aria-label="Learning" hidden></div>
 <div class="learn-screen learn-full" id="learnFull" role="dialog" aria-modal="true" aria-label="Learning, full screen" hidden></div>
 <div class="lesson-card" id="lessonCard" role="dialog" aria-modal="true" aria-label="Lesson of the turn" tabindex="-1" hidden></div>
+<div class="learn-screen" id="resScreen" role="dialog" aria-modal="true" aria-label="Resources" hidden></div>
 <div class="wrap">
 
   <header class="mast">
@@ -1380,9 +1410,43 @@ window.__mdSelfTest=function(ok){
   ok('md escape', mdRender('<script>').indexOf('&lt;script&gt;')>=0);
 };
 
-function resOpen(key){ /* Tasks 5–6 */ }
-function resIsOpen(){ return false; }
-function resClose(){}
+let resCurrentKey=null, resDocIdx=0;
+function resIsOpen(){ return !$('resScreen').hidden; }
+function resClose(){ learnDemoGen++; const o=$('resScreen'); o.hidden=true; o.innerHTML=''; document.body.style.overflow=''; resCurrentKey=null; }
+function resOpen(key){ if(!RESOURCES[key]) return; resCurrentKey=key; resDocIdx=0;
+  $('resScreen').hidden=false; document.body.style.overflow='hidden';
+  if(!RESOURCES[key].docs.length){ resLoadManifest(()=>resRenderShell()); } else { resRenderShell(); } }
+function resRenderShell(){
+  const key=resCurrentKey, set=RESOURCES[key]; const host=$('resScreen'); host.innerHTML='';
+  const wrap=document.createElement('div'); wrap.className='learn-wrap';
+  const top=document.createElement('div'); top.className='learn-top';
+  const h2=document.createElement('h2'); h2.innerHTML='Owar<em>é</em> · '+set.label;
+  top.appendChild(h2); wrap.appendChild(top);
+  const body=document.createElement('div'); body.className='res-body'+(set.docs.length<2?' single':'');
+  let pane;
+  if(set.docs.length>1){
+    const idx=document.createElement('div'); idx.className='res-index';
+    set.docs.forEach((d,n)=>{ const b=document.createElement('button'); if(n===resDocIdx) b.classList.add('sel');
+      b.innerHTML='<span>'+mdEscape(d.title)+'</span>'+(d.summary?'<span class="meta">'+mdEscape(d.summary)+'</span>':'');
+      b.onclick=()=>{ resDocIdx=n; resRenderShell(); }; idx.appendChild(b); });
+    body.appendChild(idx);
+  }
+  pane=document.createElement('div'); pane.className='res-pane'; body.appendChild(pane);
+  wrap.appendChild(body);
+  const close=document.createElement('button'); close.className='btn learn-close'; close.textContent='✕ Close'; close.onclick=resClose;
+  wrap.appendChild(close); host.appendChild(wrap);
+  if(key==='papers') pdfView(pane, set.docs[resDocIdx]);   /* Task 6 */
+  else mdView(pane, set.docs[resDocIdx]);
+}
+function mdView(pane, doc){
+  if(!doc){ pane.innerHTML='<div class="res-status">No documents available.</div>'; return; }
+  pane.innerHTML='<div class="res-status">Loading '+mdEscape(doc.title)+'…</div>';
+  fetch(doc.file).then(r=>{ if(!r.ok) throw new Error(r.status); return r.text(); })
+    .then(txt=>{ const div=document.createElement('div'); div.className='md-body'; div.innerHTML=mdRender(txt); pane.innerHTML=''; pane.appendChild(div); })
+    .catch(()=>{ pane.innerHTML='<div class="res-status">Couldn’t load this document. '+
+      '<a href="'+mdEscape(doc.file)+'" target="_blank" rel="noopener">Open it directly ↗</a></div>'; });
+}
+function pdfView(pane, doc){ /* replaced in Task 6 */ }
 
 function lessonUnlockedList(){ return LEARN.filter(learnIsUnlocked); }
 function lessonCurrent(){ const u=lessonUnlockedList(); if(!u.length) return null;
