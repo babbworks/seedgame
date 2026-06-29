@@ -1,0 +1,33 @@
+{
+  "name": "oware-web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/**/*.test.mjs",
+    "test:endmode": "node --test tests/unit/end-mode.test.mjs"
+  },
+  "devDependencies": {
+    "fast-check": "^3.15.0"
+  },
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "dependencies": {
+    "pure-rand": "^6.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peers8862/oware-web.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/peers8862/oware-web/issues"
+  },
+  "homepage": "https://github.com/peers8862/oware-web#readme",
+  "description": ""
+}

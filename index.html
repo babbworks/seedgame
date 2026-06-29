@@ -52,10 +52,9 @@
 
   /* ---- board ---- */
   .board{
-    display:grid;
-    grid-template-columns:auto 1fr auto;
-    align-items:stretch;
-    gap:clamp(8px,2.4vw,16px);
+    display:flex;
+    flex-direction:column;
+    gap:clamp(6px,1.8vw,12px);
     padding:clamp(14px,3.6vw,22px);
     border-radius:26px;
     background:
@@ -179,36 +178,34 @@
     100%{ transform:translateY(0) scale(1); opacity:1 }
   }
   .count{ font-size:max(13px,34cqmin); line-height:1; letter-spacing:-.02em; color:var(--brass-bright) }
+  .count.count-wide{ font-size:max(9px,22cqmin); letter-spacing:-.01em }
+  .count.count-tally{ font-size:max(10px,26cqmin); letter-spacing:.02em }
   .socket{ width:max(4px,11cqmin);height:max(4px,11cqmin);border-radius:50%;background:#00000055;box-shadow:inset 0 1px 1px #00000080 }
 
-  /* ---- stores (capture pots) ---- */
-  .store{
-    width:clamp(52px,15vw,74px);
-    border-radius:46px;
-    background:
-      radial-gradient(120% 60% at 50% 18%, var(--recess) 0%, var(--recess-lo) 80%);
-    box-shadow:
-      inset 0 10px 20px -6px #000000d8,
-      inset 0 -3px 4px #ffffff10,
-      inset 0 0 0 1px #00000050;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:4px;padding:14px 6px;
-    position:relative;
+  /* ---- score bars (inline top/bottom) ---- */
+  .score-bar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:6px clamp(10px,2.6vw,16px);
+    border-radius:10px;
+    background:#00000028;
+    border:1px solid transparent;
+    transition:border-color .2s, box-shadow .2s;
   }
-  .store .num{
-    font-family:"Fraunces",serif;font-weight:700;font-size:clamp(26px,7vw,34px);
+  .score-bar .who{
+    font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink-faint);font-weight:600;
+    transition:color .2s;
+  }
+  .score-bar .num{
+    font-family:"Fraunces",serif;font-weight:700;font-size:clamp(22px,6vw,30px);
     color:var(--brass-bright);line-height:1;
     text-shadow:0 1px 2px #00000080;
     transition:transform .2s ease;
   }
-  .store.gain .num{ animation:gain .34s ease }
+  .score-bar.gain .num{ animation:gain .34s ease }
   @keyframes gain{ 0%{transform:scale(1)} 45%{transform:scale(1.28);color:#fff} 100%{transform:scale(1)} }
-  .store .who{
-    font-size:10px;letter-spacing:.16em;text-transform:uppercase;
-    color:var(--ink-faint);font-weight:600;text-align:center;
-  }
-  .store.turn{ box-shadow:inset 0 10px 20px -6px #000000d8, 0 0 0 2px var(--brass), 0 0 14px -3px var(--brass) }
-  .store.turn .who{ color:var(--brass) }
+  .score-bar.turn{ border-color:var(--brass);box-shadow:0 0 14px -3px var(--brass) }
+  .score-bar.turn .who{ color:var(--brass) }
 
   /* ---- status ---- */
   .status{
@@ -272,6 +269,96 @@
   }
   .settings.open{ display:flex }
 
+  /* ---- AI config panel ---- */
+  .ai-config{
+    display:none;flex-direction:column;gap:10px;
+    margin:10px auto 0;max-width:520px;
+    padding:12px 14px;border-radius:12px;
+    background:#00000028;border:1px solid #00000040;
+  }
+  .ai-config.open{ display:flex }
+  .ai-config .ai-row{
+    display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;
+  }
+  .ai-config label{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:12px;letter-spacing:.04em;color:var(--ink-dim);
+  }
+  .ai-config .ai-slider-wrap{
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .ai-config input[type="range"]{
+    width:100px;accent-color:var(--brass);cursor:pointer;
+  }
+  .ai-config .ai-val{
+    font-family:"Spline Sans Mono",monospace;font-size:12px;color:var(--brass-bright);
+    min-width:32px;text-align:right;
+  }
+  .ai-config .ai-toggle{
+    position:relative;display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+  }
+  .ai-config .ai-toggle input{ display:none }
+  .ai-config .ai-toggle .track{
+    width:32px;height:18px;border-radius:10px;
+    background:#2c1c0f;border:1px solid #00000060;
+    transition:background .15s;position:relative;
+  }
+  .ai-config .ai-toggle input:checked + .track{ background:var(--brass-dim) }
+  .ai-config .ai-toggle .track::after{
+    content:"";position:absolute;top:2px;left:2px;
+    width:12px;height:12px;border-radius:50%;
+    background:var(--ink-dim);transition:transform .15s, background .15s;
+  }
+  .ai-config .ai-toggle input:checked + .track::after{
+    transform:translateX(14px);background:var(--brass-bright);
+  }
+
+  /* ---- player profiles ---- */
+  .profiles-panel{
+    display:none;flex-direction:column;gap:10px;
+    margin:10px auto 0;max-width:520px;
+    padding:12px 14px;border-radius:12px;
+    background:#00000028;border:1px solid #00000040;
+  }
+  .profiles-panel.open{ display:flex }
+  .profiles-panel h3{
+    font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--brass-dim);margin:0;
+  }
+  .profiles-row{
+    display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+  }
+  .profiles-row input[type="text"]{
+    font:inherit;font-size:13px;color:var(--ink);
+    background:linear-gradient(180deg,#3a2615,#2c1c0f);
+    border:1px solid #00000050;border-radius:9px;padding:7px 12px;
+    box-shadow:inset 0 1px 0 #ffffff14, 0 1px 2px #00000050;
+    flex:1 1 120px;min-width:0;
+  }
+  .profiles-row input[type="text"]::placeholder{ color:var(--ink-faint) }
+  .profiles-row input[type="text"]:focus{ outline:2px solid var(--brass-bright);outline-offset:2px;border-color:var(--brass) }
+  .profile-tags{
+    display:flex;flex-wrap:wrap;gap:6px;min-height:24px;
+  }
+  .profile-tag{
+    display:inline-flex;align-items:center;gap:4px;
+    font-size:12px;color:var(--ink);
+    background:#ffffff0e;border:1px solid #00000050;border-radius:7px;padding:4px 8px;
+  }
+  .profile-tag .rm{
+    background:none;border:0;color:var(--ink-faint);cursor:pointer;font-size:13px;line-height:1;padding:0 2px;
+  }
+  .profile-tag .rm:hover{ color:var(--oware-red) }
+  .player-selectors{
+    display:none;flex-wrap:wrap;gap:8px;align-items:center;
+    margin:6px auto 0;max-width:520px;
+  }
+  .player-selectors.show{ display:flex }
+  .player-selectors label{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:12px;letter-spacing:.04em;color:var(--ink-dim);
+  }
+
   /* ---- records plaque ---- */
   .plaque{
     margin:26px auto 0;max-width:420px;
@@ -291,6 +378,33 @@
   th{ color:var(--ink-faint);font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase }
   td{ color:var(--ink) }
   .plaque .foot{ margin-top:10px;text-align:right }
+  .tally-display{
+    font-size:14px;color:var(--ink);text-align:center;
+    letter-spacing:.02em;
+  }
+  .tally-display .tally-label{
+    font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--brass-dim);
+    font-weight:600;margin-bottom:4px;
+  }
+  .tally-display .tally-score{
+    font-family:"Fraunces",serif;font-size:clamp(16px,4vw,20px);font-weight:600;
+    color:var(--ink);
+  }
+  .tally-display .tally-score .tally-num{ color:var(--brass-bright) }
+
+  /* ---- 2P match history ---- */
+  .match-history{ display:none;margin-top:12px;padding-top:10px;border-top:1px solid #ffffff0d }
+  .match-history.show{ display:block }
+  .match-history h3{
+    font-family:"Spline Sans",sans-serif;font-size:10px;font-weight:600;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--brass-dim);margin:0 0 8px;
+  }
+  .match-history table{ width:100%;border-collapse:collapse;font-family:"Spline Sans Mono",ui-monospace,monospace;font-size:13px }
+  .match-history th,.match-history td{ text-align:right;padding:4px 8px;border-bottom:1px solid #ffffff0d }
+  .match-history th:first-child,.match-history td:first-child{ text-align:left;color:var(--ink-dim) }
+  .match-history th{ color:var(--ink-faint);font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase }
+  .match-history td{ color:var(--ink) }
+  .match-history .mh-highlight{ color:var(--brass-bright) }
 
   .colophon{
     margin:22px auto 0;max-width:480px;text-align:center;
@@ -312,6 +426,7 @@
   body.focus .status,
   body.focus .controls,
   body.focus .settings,
+  body.focus .ai-config,
   body.focus .plaque,
   body.focus .colophon{ display:none }
   body.focus .wrap{
@@ -328,6 +443,27 @@
   @media (prefers-reduced-motion: reduce){
     *{animation-duration:.001ms !important;transition-duration:.001ms !important}
   }
+
+  /* ---- complexity metric indicator ---- */
+  .complexity{
+    display:flex;align-items:center;gap:8px;justify-content:center;
+    margin:10px auto 0;max-width:320px;
+    font-family:"Spline Sans Mono",ui-monospace,monospace;font-size:11px;
+    color:var(--ink-faint);letter-spacing:.03em;
+  }
+  .complexity .cx-bar{
+    flex:1 1 auto;height:3px;border-radius:2px;
+    background:#00000040;position:relative;overflow:hidden;
+  }
+  .complexity .cx-fill{
+    position:absolute;inset:0;right:auto;
+    border-radius:2px;background:var(--brass-dim);
+    transition:width .3s ease;
+  }
+  .complexity .cx-val{ min-width:26px;text-align:right }
+  .complexity.solved .cx-fill{ background:var(--good) }
+  .complexity.solved .cx-val{ color:var(--good) }
+  body.focus .complexity{ display:none }
 
   /* ---- board colour (hue) picker ---- */
   .board-area{ display:flex;align-items:stretch;gap:clamp(6px,1.6vw,12px);max-width:680px;margin:0 auto }
@@ -514,9 +650,9 @@
   <div class="board-area">
   <div class="hue-picker" id="huePicker" role="group" aria-label="Board colour"></div>
   <div class="board" role="group" aria-label="Oware board">
-    <div class="store" id="storeLeft">
-      <span class="num" id="scoreTop">0</span>
+    <div class="score-bar" id="scoreBarTop">
       <span class="who" id="whoTop">Opponent</span>
+      <span class="num" id="scoreTop">0</span>
     </div>
     <div class="ranks">
       <div class="keys" id="keysTop" aria-hidden="true"></div>
@@ -525,9 +661,9 @@
       <div class="rank" id="rowBot" aria-label="your houses"></div>
       <div class="keys" id="keysBot" aria-hidden="true"></div>
     </div>
-    <div class="store" id="storeRight">
-      <span class="num" id="scoreBot">0</span>
+    <div class="score-bar" id="scoreBarBot">
       <span class="who" id="whoBot">You</span>
+      <span class="num" id="scoreBot">0</span>
     </div>
   </div>
     <div class="res-rail" id="resRail" role="group" aria-label="Learning resources"></div>
@@ -535,7 +671,13 @@
 
   <p class="status" id="status">Your move — pick one of your houses to sow.</p>
 
-  <div class="legend show" id="legend" aria-hidden="true">
+  <div class="complexity" id="complexity" aria-label="Position complexity">
+    <span class="cx-label">Complexity</span>
+    <span class="cx-bar"><span class="cx-fill" id="cxFill" style="width:0%"></span></span>
+    <span class="cx-val" id="cxVal">—</span>
+  </div>
+
+  <div class="legend" id="legend" aria-hidden="true">
     <span class="lg-title">Key</span>
     <span class="lg-item"><i class="sw sw-src"></i>aim from</span>
     <span class="lg-item"><i class="sw sw-1"></i>fills once</span>
@@ -556,8 +698,10 @@
         <option value="easy">Easy</option>
         <option value="medium" selected>Medium</option>
         <option value="hard">Hard</option>
+        <option value="custom">Custom</option>
       </select>
     </label>
+    <button class="btn" id="aiStrength">AI: heuristic</button>
     <button class="btn btn--primary" id="newgame">New game</button>
     <button class="btn" id="concede">Concede</button>
     <button class="btn" id="settingsBtn">Rules</button>
@@ -567,6 +711,12 @@
   </div>
 
   <div class="settings" id="settings">
+    <label>Capture on
+      <select id="capRule">
+        <option value="23" selected>2 or 3</option>
+        <option value="34">3 or 4</option>
+      </select>
+    </label>
     <label>Grand slam
       <select id="gsRule">
         <option value="nocap" selected>No capture</option>
@@ -575,29 +725,110 @@
         <option value="leavelast">Leave last</option>
       </select>
     </label>
-    <label>Capture on
-      <select id="capRule">
-        <option value="23" selected>2 or 3</option>
-        <option value="34">3 or 4</option>
+    <label>Terminal
+      <select id="termRule">
+        <option value="academic" selected>Academic (opponent takes all)</option>
+        <option value="ownrow">Own-row (each keeps own side)</option>
       </select>
     </label>
-    <label>Win at
-      <select id="target">
-        <option value="25" selected>25 (majority)</option>
-        <option value="49">all captured</option>
+    <label>Repetition
+      <select id="repRule">
+        <option value="split" selected>Split evenly</option>
+        <option value="ownrow">Own-row (each keeps own side)</option>
+        <option value="lastmover">Last mover takes all</option>
+      </select>
+    </label>
+    <label>End mode
+      <select id="endMode">
+        <option value="firstto" selected>First to 25 (majority)</option>
+        <option value="allcap">All capture (play to finality)</option>
+      </select>
+    </label>
+    <label>Cycle limit
+      <select id="cycleLimit">
+        <option value="20">20</option>
+        <option value="50">50</option>
+        <option value="100" selected>100</option>
+        <option value="200">200</option>
+        <option value="0">Unlimited</option>
+      </select>
+    </label>
+    <label>Numerals
+      <select id="numeralMode">
+        <option value="arabic" selected>Arabic</option>
+        <option value="binary">Binary</option>
+        <option value="hex">Hexadecimal</option>
+        <option value="tally">Tally</option>
+        <option value="roman">Roman</option>
       </select>
     </label>
   </div>
 
+  <div class="ai-config" id="aiConfig">
+    <div class="ai-row">
+      <label>Preset
+        <select id="aiPreset">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+          <option value="custom">Custom</option>
+        </select>
+      </label>
+    </div>
+    <div class="ai-row">
+      <label>Depth
+        <select id="aiDepth">
+          <option value="4">4 plies</option>
+          <option value="6" selected>6 plies</option>
+          <option value="8">8 plies</option>
+          <option value="10">10 plies</option>
+          <option value="12">12 plies</option>
+        </select>
+      </label>
+      <label class="ai-toggle">Endgame DB
+        <input type="checkbox" id="aiUseDB" checked>
+        <span class="track"></span>
+      </label>
+    </div>
+    <div class="ai-row">
+      <label>Blunder rate
+        <span class="ai-slider-wrap">
+          <input type="range" id="aiBlunder" min="0" max="100" value="20" step="5">
+          <span class="ai-val" id="aiBlunderVal">20%</span>
+        </span>
+      </label>
+    </div>
+  </div>
+
+  <div class="profiles-panel" id="profilesPanel">
+    <h3>Player Profiles</h3>
+    <div class="profiles-row">
+      <input type="text" id="profileNameInput" placeholder="Enter name" maxlength="24" aria-label="Profile name">
+      <button class="btn" id="profileAddBtn">Add</button>
+    </div>
+    <div class="profile-tags" id="profileTags"></div>
+  </div>
+
+  <div class="player-selectors" id="playerSelectors">
+    <label>South (Player 1)
+      <select id="selPlayer1"></select>
+    </label>
+    <label>North (Player 2)
+      <select id="selPlayer2"></select>
+    </label>
+  </div>
+
   <section class="plaque">
-    <h2>Records · this browser</h2>
+    <h2 id="recordsTitle">Records · Guest</h2>
     <table>
       <tr><th>vs Computer</th><th>Won</th><th>Lost</th><th>Drawn</th></tr>
       <tr><td>Easy</td><td id="r-easy-w">0</td><td id="r-easy-l">0</td><td id="r-easy-d">0</td></tr>
       <tr><td>Medium</td><td id="r-medium-w">0</td><td id="r-medium-l">0</td><td id="r-medium-d">0</td></tr>
       <tr><td>Hard</td><td id="r-hard-w">0</td><td id="r-hard-l">0</td><td id="r-hard-d">0</td></tr>
     </table>
-    <div class="foot"><button class="btn" id="resetRecords">Reset records</button></div>
+    <div id="tallyDisplay" class="tally-display" style="margin-top:12px;padding-top:10px;border-top:1px solid #ffffff0d"></div>
+    <div id="matchHistory" class="match-history"></div>
+    <div class="foot"><button class="btn" id="resetRecords">Reset records</button> <button class="btn" id="resetTally">Reset tally</button></div>
   </section>
 
   <p class="colophon">
@@ -614,8 +845,14 @@
    =========================================================================== */
 const HOUSES = 12, SIDE = 6;
 
-function newState(){ return { h:[4,4,4,4,4,4,4,4,4,4,4,4], score:[0,0], turn:0, ncp:0 }; }
-function clone(s){ return { h:s.h.slice(), score:s.score.slice(), turn:s.turn, ncp:s.ncp }; }
+function newState(){
+  const s = { h:[4,4,4,4,4,4,4,4,4,4,4,4], score:[0,0], turn:0, ncp:0, hashHistory:new Set() };
+  s.hashHistory.add(positionHash(s));
+  return s;
+}
+function clone(s){ return { h:s.h.slice(), score:s.score.slice(), turn:s.turn, ncp:s.ncp, hashHistory:new Set(s.hashHistory || []) }; }
+function positionHash(s){ return s.h.join(',')+'|'+s.turn; }
+function checkRepetition(s){ return s.hashHistory.has(positionHash(s)); }
 function belongs(i,p){ return (i < SIDE) === (p === 0); }
 function sideSeeds(s,p){ let t=0; for(let i=0;i<HOUSES;i++) if(belongs(i,p)) t+=s.h[i]; return t; }
 function boardSeeds(s){ let t=0; for(let i=0;i<HOUSES;i++) t+=s.h[i]; return t; }
@@ -686,23 +923,93 @@ function applyMove(s, house, rules){
   const out = sim.out;
   out.ncp  = sim.res.captured>0 ? 0 : s.ncp+1;
   out.turn = s.turn ^ 1;
+  out.hashHistory = new Set(s.hashHistory || []);
   return { state:out, info:sim.res };
 }
 
-function collectSides(s){
-  for(let i=0;i<HOUSES;i++){ if(s.h[i]>0){ s.score[ i<SIDE?0:1 ] += s.h[i]; s.h[i]=0; } }
+function collectSides(s, rules){
+  if(rules && rules.terminal === 'ownrow'){
+    /* Own-row convention: each player collects seeds on their own 6 houses */
+    for(let i=0;i<HOUSES;i++){
+      if(s.h[i]>0){
+        s.score[ belongs(i,0) ? 0 : 1 ] += s.h[i];
+        s.h[i]=0;
+      }
+    }
+  } else {
+    /* Academic convention (default): opponent gets all remaining seeds when mover has no legal move;
+       on repetition, split equally — handled in isOver */
+    for(let i=0;i<HOUSES;i++){ if(s.h[i]>0){ s.score[ i<SIDE?0:1 ] += s.h[i]; s.h[i]=0; } }
+  }
 }
 
 function isOver(s, rules){
   const res = { over:false, outcome:null, score:[s.score[0], s.score[1]] };
   if(rules.endMode==='firstto' && (s.score[0]>=rules.target || s.score[1]>=rules.target)) res.over=true;
   if(!res.over && boardSeeds(s)===0) res.over=true;
+
+  /* Repetition detection: position already seen in hash history */
+  if(!res.over && checkRepetition(s)){
+    const t=clone(s);
+    const repMode = rules.repetition || (rules.terminal === 'ownrow' ? 'ownrow' : 'split');
+    if(repMode === 'ownrow'){
+      /* Own-row repetition: each player collects own side */
+      collectSides(t, rules);
+    } else if(repMode === 'lastmover'){
+      /* Last mover takes all remaining seeds */
+      const rem = boardSeeds(t);
+      const lastMover = t.turn ^ 1; /* turn already flipped, so last mover is the previous */
+      for(let i=0;i<HOUSES;i++) t.h[i]=0;
+      t.score[lastMover] += rem;
+    } else {
+      /* Split: split remaining seeds equally (default academic behaviour) */
+      const rem = boardSeeds(t);
+      const half = Math.floor(rem / 2);
+      for(let i=0;i<HOUSES;i++) t.h[i]=0;
+      t.score[0] += half;
+      t.score[1] += rem - half;
+    }
+    res.score=[t.score[0],t.score[1]]; res.over=true;
+  }
+
+  /* Cycle limit (ncp safety-net) */
   if(!res.over && rules.cycleLimit>0 && s.ncp>=rules.cycleLimit){
-    const t=clone(s); collectSides(t); res.score=[t.score[0],t.score[1]]; res.over=true;
+    const t=clone(s);
+    const repMode = rules.repetition || (rules.terminal === 'ownrow' ? 'ownrow' : 'split');
+    if(repMode === 'ownrow'){
+      collectSides(t, rules);
+    } else if(repMode === 'lastmover'){
+      const rem = boardSeeds(t);
+      const lastMover = t.turn ^ 1;
+      for(let i=0;i<HOUSES;i++) t.h[i]=0;
+      t.score[lastMover] += rem;
+    } else {
+      /* Split: split remaining seeds equally */
+      const rem = boardSeeds(t);
+      const half = Math.floor(rem / 2);
+      for(let i=0;i<HOUSES;i++) t.h[i]=0;
+      t.score[0] += half;
+      t.score[1] += rem - half;
+    }
+    res.score=[t.score[0],t.score[1]]; res.over=true;
   }
+
+  /* No legal moves */
   if(!res.over && legalMoves(s,rules).length===0){
-    const t=clone(s); collectSides(t); res.score=[t.score[0],t.score[1]]; res.over=true;
+    const t=clone(s);
+    if(rules.terminal === 'ownrow'){
+      /* Own-row: each player collects their own side */
+      collectSides(t, rules);
+    } else {
+      /* Academic: opponent gets all remaining seeds */
+      const opp = s.turn ^ 1;
+      const rem = boardSeeds(t);
+      for(let i=0;i<HOUSES;i++) t.h[i]=0;
+      t.score[opp] += rem;
+    }
+    res.score=[t.score[0],t.score[1]]; res.over=true;
   }
+
   if(res.over) res.outcome = res.score[0]>res.score[1] ? 0 : res.score[1]>res.score[0] ? 1 : 'draw';
   return res;
 }
@@ -711,6 +1018,79 @@ function isOver(s, rules){
    AI — negamax + alpha-beta, mirroring oware_ai.c eval terms.
    =========================================================================== */
 function capCount(s,house,rules){ const sim=simulate(s,house,rules); return sim?sim.res.captured:0; }
+
+/* ---- Feature extraction for DB-mined evaluation ---- */
+function countEmpty(state, player){
+  let c=0;
+  for(let i=0;i<HOUSES;i++) if(belongs(i,player) && state.h[i]===0) c++;
+  return c;
+}
+
+function countReach(state, me){
+  // Count own pits with enough seeds to sow at least one seed into opponent territory.
+  // Player 0 (South): houses 0–5, house i needs h[i] >= (6 - i) to reach house 6+
+  // Player 1 (North): houses 6–11, house i needs h[i] >= (12 - i) to reach house 0–5
+  let c=0;
+  for(let i=0;i<HOUSES;i++){
+    if(!belongs(i,me)) continue;
+    const seeds = state.h[i];
+    if(seeds === 0) continue;
+    // Distance to first opponent house: for player 0 pit i, need to pass (SIDE - 1 - i) own pits then land on pit 6
+    // That means need >= (6 - i) seeds. For player 1 pit i (6..11), need >= (12 - i) seeds.
+    const threshold = me === 0 ? (SIDE - i) : (HOUSES - i);
+    if(seeds >= threshold) c++;
+  }
+  return c;
+}
+
+function countKroo(state, me){
+  let c=0;
+  for(let i=0;i<HOUSES;i++) if(belongs(i,me) && state.h[i]>12) c++;
+  return c;
+}
+
+function extractFeatures(state, me){
+  const opp = me ^ 1;
+  return {
+    material: state.score[me] - state.score[opp],
+    oppEmptyPits: countEmpty(state, opp),
+    ownEmptyPits: countEmpty(state, me),
+    reach: countReach(state, me),
+    krooCount: countKroo(state, me),
+  };
+}
+
+/* ---- Decision-tree evaluator (DB-mined, replaces linear weights for Medium/Hard) ---- */
+const EVAL_TREE = {
+  feature: 'oppEmptyPits', threshold: 3,
+  left: {
+    feature: 'material', threshold: -2,
+    left:  { mu: -3.2, sigma: 4.1 },   // losing, high variance
+    right: {
+      feature: 'krooCount', threshold: 1,
+      left:  { mu: 0.8, sigma: 2.9 },  // neutral, no kroo
+      right: { mu: 2.0, sigma: 2.5 }   // neutral with hoarding advantage
+    }
+  },
+  right: {
+    feature: 'reach', threshold: 2,
+    left: {
+      feature: 'ownEmptyPits', threshold: 4,
+      left:  { mu: 1.5, sigma: 3.4 },  // some reach, reasonable position
+      right: { mu: -0.5, sigma: 3.8 }  // many empty own pits, vulnerable
+    },
+    right: { mu: 4.1, sigma: 2.2 }     // dominant: high reach, opp exposed
+  }
+};
+
+function evalDecisionTree(state, rules, me){
+  const f = extractFeatures(state, me);
+  let node = EVAL_TREE;
+  while(node.feature){
+    node = f[node.feature] < node.threshold ? node.left : node.right;
+  }
+  return Math.round(((node.mu + f.material) / node.sigma) * 100);
+}
 
 function evalState(s, rules, me){
   const opp = me^1;
@@ -727,13 +1107,17 @@ function evalState(s, rules, me){
   return v;
 }
 
+/* Active evaluator: set by chooseMove before search.
+   Medium/Hard use evalDecisionTree; Easy uses evalState. */
+let activeEval = evalState;
+
 function negamax(s, rules, depth, alpha, beta){
   const over = isOver(s,rules);
   if(over.over){
     const me=s.turn, diff=over.score[me]-over.score[me^1];
     if(diff>0) return 100000+depth; if(diff<0) return -100000-depth; return 0;
   }
-  if(depth===0) return evalState(s,rules,s.turn);
+  if(depth===0) return activeEval(s,rules,s.turn);
   const moves = legalMoves(s,rules).sort((a,b)=>capCount(s,b,rules)-capCount(s,a,rules));
   let best=-Infinity;
   for(const mv of moves){
@@ -750,12 +1134,16 @@ function chooseMove(s, rules, diff){
   const moves = legalMoves(s,rules);
   if(moves.length===0) return null;
   if(diff==='easy'){
+    /* Easy: simple one-ply eval with random noise — uses linear evalState */
+    activeEval = evalState;
     if(Math.random()<0.2) return moves[(Math.random()*moves.length)|0];
     let best=-Infinity, pool=[];
     for(const mv of moves){ const v=evalState(applyMove(s,mv,rules).state,rules,s.turn);
       if(v>best){best=v;pool=[mv];} else if(v===best) pool.push(mv); }
     return pool[(Math.random()*pool.length)|0];
   }
+  /* Medium and Hard: use decision-tree evaluator */
+  activeEval = evalDecisionTree;
   const depth = diff==='hard' ? 8 : 6;
   /* Full-window search of every root move so the scores are directly
      comparable — root alpha-beta would return bounds, not true values. */
@@ -777,28 +1165,933 @@ function chooseMove(s, rules, diff){
 }
 
 /* ===========================================================================
+   Web Worker — off-thread AI search (inline Blob URL, single-file constraint).
+   Contains: rules engine subset, evaluation, search, TT, DB probe stubs.
+   Tasks 7.2–7.4 will fill in real negamax/TT/DB implementations.
+   =========================================================================== */
+const WORKER_CODE = `
+"use strict";
+
+/* --- Rules engine subset (duplicated for Worker isolation) --- */
+const HOUSES = 12, SIDE = 6;
+
+function clone(s){ return { h:s.h.slice(), score:s.score.slice(), turn:s.turn, ncp:s.ncp }; }
+function belongs(i,p){ return (i < SIDE) === (p === 0); }
+function sideSeeds(s,p){ let t=0; for(let i=0;i<HOUSES;i++) if(belongs(i,p)) t+=s.h[i]; return t; }
+function boardSeeds(s){ let t=0; for(let i=0;i<HOUSES;i++) t+=s.h[i]; return t; }
+function capturable(c,rule){ return rule==='34' ? (c===3||c===4) : (c===2||c===3); }
+
+function simulate(s, house, rules){
+  const p = s.turn;
+  if(house<0 || house>=HOUSES) return null;
+  if(!belongs(house,p)) return null;
+  if(s.h[house]===0) return null;
+  const out = clone(s);
+  let seeds = out.h[house]; out.h[house] = 0;
+  let i = house;
+  while(seeds > 0){ i = (i+1) % HOUSES; if(i===house) continue; out.h[i]++; seeds--; }
+  const landing = i;
+  const cap = []; let j = landing;
+  for(;;){
+    if(belongs(j,p)) break;
+    if(!capturable(out.h[j], rules.capture)) break;
+    cap.push(j);
+    if(cap.length >= SIDE) break;
+    j = (j===0) ? HOUSES-1 : j-1;
+  }
+  const res = { landing, captured:0, grandSlam:false };
+  if(cap.length===0) return { out, res };
+  const opp = p ^ 1;
+  let capTotal = 0; for(const k of cap) capTotal += out.h[k];
+  const grandSlam = (capTotal === sideSeeds(out,opp));
+  res.grandSlam = grandSlam;
+  const take = (k)=>{ out.score[p]+=out.h[k]; res.captured+=out.h[k]; out.h[k]=0; };
+  if(!grandSlam){ for(const k of cap) take(k); return { out, res }; }
+  switch(rules.grandslam){
+    case 'nocap': break;
+    case 'forbid': break;
+    case 'oppkeeps':
+      for(const k of cap) take(k);
+      for(let k=0;k<HOUSES;k++){ out.score[opp]+=out.h[k]; out.h[k]=0; }
+      break;
+    case 'leavelast':
+      for(let c=0;c+1<cap.length;c++) take(cap[c]);
+      break;
+    default: break;
+  }
+  return { out, res };
+}
+
+function legalMoves(s, rules){
+  const p=s.turn, opp=p^1, oppEmpty = sideSeeds(s,opp)===0;
+  const moves=[];
+  for(let hh=0;hh<HOUSES;hh++){
+    if(!belongs(hh,p) || s.h[hh]===0) continue;
+    const sim = simulate(s,hh,rules); if(!sim) continue;
+    if(sim.res.grandSlam && rules.grandslam==='forbid') continue;
+    if(oppEmpty && sideSeeds(sim.out,opp)===0) continue;
+    moves.push(hh);
+  }
+  return moves;
+}
+
+function applyMove(s, house, rules){
+  const sim = simulate(s,house,rules);
+  const out = sim.out;
+  out.ncp  = sim.res.captured>0 ? 0 : s.ncp+1;
+  out.turn = s.turn ^ 1;
+  return { state:out, info:sim.res };
+}
+
+function collectSides(s, rules){
+  if(rules && rules.terminal === 'ownrow'){
+    for(let i=0;i<HOUSES;i++){
+      if(s.h[i]>0){ s.score[ belongs(i,0) ? 0 : 1 ] += s.h[i]; s.h[i]=0; }
+    }
+  } else {
+    for(let i=0;i<HOUSES;i++){ if(s.h[i]>0){ s.score[ i<SIDE?0:1 ] += s.h[i]; s.h[i]=0; } }
+  }
+}
+
+function isOver(s, rules){
+  const res = { over:false, outcome:null, score:[s.score[0], s.score[1]] };
+  if(rules.endMode==='firstto' && (s.score[0]>=rules.target || s.score[1]>=rules.target)) res.over=true;
+  if(!res.over && boardSeeds(s)===0) res.over=true;
+  if(!res.over && rules.cycleLimit>0 && s.ncp>=rules.cycleLimit){
+    const t=clone(s);
+    const repMode = rules.repetition || (rules.terminal === 'ownrow' ? 'ownrow' : 'split');
+    if(repMode === 'ownrow') collectSides(t, rules);
+    else if(repMode === 'lastmover'){
+      const rem = boardSeeds(t); const lastMover = t.turn ^ 1;
+      for(let i=0;i<HOUSES;i++) t.h[i]=0; t.score[lastMover] += rem;
+    } else {
+      const rem = boardSeeds(t); const half = Math.floor(rem / 2);
+      for(let i=0;i<HOUSES;i++) t.h[i]=0; t.score[0] += half; t.score[1] += rem - half;
+    }
+    res.score=[t.score[0],t.score[1]]; res.over=true;
+  }
+  if(!res.over && legalMoves(s,rules).length===0){
+    const t=clone(s);
+    if(rules.terminal === 'ownrow') collectSides(t, rules);
+    else {
+      const opp = s.turn ^ 1; const rem = boardSeeds(t);
+      for(let i=0;i<HOUSES;i++) t.h[i]=0; t.score[opp] += rem;
+    }
+    res.score=[t.score[0],t.score[1]]; res.over=true;
+  }
+  if(res.over) res.outcome = res.score[0]>res.score[1] ? 0 : res.score[1]>res.score[0] ? 1 : 'draw';
+  return res;
+}
+
+/* --- Transposition Table ---
+   TTEntry structure: { hash: string, value: number, depth: number,
+                        bound: 'exact'|'lower'|'upper', bestMove: number }
+   - hash: store-independent board hash (h[0..11] + turn, no banked scores)
+   - value: evaluation score at this depth
+   - depth: search depth when stored
+   - bound: 'exact' = true minimax value, 'lower' = failed high (>=),
+            'upper' = failed low (<=)
+   - bestMove: pit index of best move found for move ordering
+*/
+const TT_SIZE = 1 << 20;
+const tt = new Array(TT_SIZE);
+function ttClear(){ tt.fill(undefined); }
+
+/* --- DB Probe (Task 9.2) --- */
+let layerHandles = {};  /* s → Uint8Array (layer binary data in Worker RAM) */
+let maxLoadedLayer = 0; /* highest layer s available for probing */
+
+/* Binomial coefficient with memoisation */
+const _combCache = new Map();
+function comb(n, k){
+  if(k < 0 || k > n) return 0;
+  if(k === 0 || k === n) return 1;
+  if(k > n - k) k = n - k;
+  const key = (n << 16) | k;
+  if(_combCache.has(key)) return _combCache.get(key);
+  let result = 1;
+  for(let i = 0; i < k; i++){
+    result = result * (n - i) / (i + 1);
+  }
+  result = Math.round(result);
+  _combCache.set(key, result);
+  return result;
+}
+
+/* Rank: distribution h[0..11] with Σh = s → index in 0..C(s+11,11)-1 */
+function dbRank(h, s){
+  let idx = 0, cumulative = 0;
+  for(let j = 0; j <= 10; j++){
+    cumulative += h[j];
+    const b = cumulative + j;
+    idx += comb(b, j + 1);
+  }
+  return idx;
+}
+
+/* Canonicalise: North-to-move (turn=1) → rotate 180° so DB sees South-to-move */
+function dbCanonicalise(h, turn){
+  if(turn === 0) return h;
+  return [h[6],h[7],h[8],h[9],h[10],h[11],h[0],h[1],h[2],h[3],h[4],h[5]];
+}
+
+/**
+ * Full DB probe pipeline:
+ *   canonicalise → rank → seek to byte offset rank/2 → read nibble → return value
+ * Returns the raw 4-bit DB value (seeds the mover captures from remaining), or null
+ * if the layer is not loaded.
+ */
+function dbProbe(state, rules){
+  const s = boardSeeds(state);
+  const layerData = layerHandles[s];
+  if(!layerData) return null;
+
+  const canon = dbCanonicalise(state.h, state.turn);
+  const idx = dbRank(canon, s);
+  const byteOffset = Math.floor(idx / 2);
+
+  if(byteOffset >= layerData.length) return null;
+
+  const byte = layerData[byteOffset];
+  /* High nibble for even rank, low nibble for odd rank */
+  return (idx % 2 === 0) ? (byte >> 4) : (byte & 0x0F);
+}
+
+/**
+ * Convert DB value to a search score relative to the searching player (me).
+ * DB value = seeds the mover captures from the remaining boardSeeds.
+ * Opponent gets the rest (s - dbVal).
+ * We compute final scores and return a large +/- for win/loss, 0 for draw.
+ */
+function dbValueToScore(dbVal, state, me){
+  const s = boardSeeds(state);
+  const moverCaptures = dbVal;
+  const oppCaptures = s - dbVal;
+  const finalMe  = state.score[me]   + (state.turn === me ? moverCaptures : oppCaptures);
+  const finalOpp = state.score[me^1] + (state.turn === me ? oppCaptures : moverCaptures);
+  const diff = finalMe - finalOpp;
+  if(diff > 0) return 90000 + diff;
+  if(diff < 0) return -90000 + diff;
+  return 0;
+}
+
+function updateMaxLoadedLayer(){
+  maxLoadedLayer = 0;
+  for(const k of Object.keys(layerHandles)){
+    const n = parseInt(k, 10);
+    if(n > maxLoadedLayer) maxLoadedLayer = n;
+  }
+}
+
+/* --- Evaluation --- */
+function countEmpty(state, player){
+  let c=0; for(let i=0;i<HOUSES;i++) if(belongs(i,player) && state.h[i]===0) c++; return c;
+}
+function countReach(state, me){
+  let c=0;
+  for(let i=0;i<HOUSES;i++){
+    if(!belongs(i,me)) continue;
+    const seeds = state.h[i]; if(seeds === 0) continue;
+    const threshold = me === 0 ? (SIDE - i) : (HOUSES - i);
+    if(seeds >= threshold) c++;
+  }
+  return c;
+}
+function countKroo(state, me){
+  let c=0; for(let i=0;i<HOUSES;i++) if(belongs(i,me) && state.h[i]>12) c++; return c;
+}
+function extractFeatures(state, me){
+  const opp = me ^ 1;
+  return {
+    material: state.score[me] - state.score[opp],
+    oppEmptyPits: countEmpty(state, opp),
+    ownEmptyPits: countEmpty(state, me),
+    reach: countReach(state, me),
+    krooCount: countKroo(state, me),
+  };
+}
+
+const EVAL_TREE = {
+  feature: 'oppEmptyPits', threshold: 3,
+  left: {
+    feature: 'material', threshold: -2,
+    left:  { mu: -3.2, sigma: 4.1 },
+    right: {
+      feature: 'krooCount', threshold: 1,
+      left:  { mu: 0.8, sigma: 2.9 },
+      right: { mu: 2.0, sigma: 2.5 }
+    }
+  },
+  right: {
+    feature: 'reach', threshold: 2,
+    left: {
+      feature: 'ownEmptyPits', threshold: 4,
+      left:  { mu: 1.5, sigma: 3.4 },
+      right: { mu: -0.5, sigma: 3.8 }
+    },
+    right: { mu: 4.1, sigma: 2.2 }
+  }
+};
+
+function evalDecisionTree(state, rules, me){
+  const f = extractFeatures(state, me);
+  let node = EVAL_TREE;
+  while(node.feature){
+    node = f[node.feature] < node.threshold ? node.left : node.right;
+  }
+  return Math.round(((node.mu + f.material) / node.sigma) * 100);
+}
+
+/* --- Move Ordering (Task 7.3) --- */
+function capCount(s, house, rules){
+  const sim = simulate(s, house, rules);
+  return sim ? sim.res.captured : 0;
+}
+
+/**
+ * Order moves for alpha-beta search efficiency:
+ * 1. TT best-move hint first (if provided)
+ * 2. Capture moves sorted by captured-seed count descending
+ * 3. Non-capture moves
+ */
+function orderMoves(s, moves, rules, ttBestMove){
+  const captures = [];
+  const quiet = [];
+  for(const mv of moves){
+    if(ttBestMove != null && mv === ttBestMove) continue; /* handled separately */
+    const cc = capCount(s, mv, rules);
+    if(cc > 0) captures.push({ mv, cc });
+    else quiet.push(mv);
+  }
+  /* Sort captures descending by seed count */
+  captures.sort((a, b) => b.cc - a.cc);
+  /* Build final ordered list */
+  const ordered = [];
+  if(ttBestMove != null && moves.indexOf(ttBestMove) !== -1){
+    ordered.push(ttBestMove);
+  }
+  for(const c of captures) ordered.push(c.mv);
+  for(const q of quiet) ordered.push(q);
+  return ordered;
+}
+
+/* --- Difficulty Presets → SearchConfig mapping --- */
+const PRESETS = {
+  easy:   { depth: 4,  blunderRate: 60, useDB: false },
+  medium: { depth: 6,  blunderRate: 20, useDB: true },
+  hard:   { depth: 8,  blunderRate: 0,  useDB: true }
+};
+
+function blunderToMargin(blunderRate){
+  /* 0% → margin 0 (always best), 100% → effectively Infinity (random) */
+  if(blunderRate <= 0) return 0;
+  if(blunderRate >= 100) return Infinity;
+  /* Linear scale: each 1% adds ~5 eval points of acceptable deviation.
+     Eval scale: 1 captured seed ~ 100 points, so 20% ~ 100 (within 1 seed) */
+  return Math.round(blunderRate * 5);
+}
+
+function difficultyToConfig(difficulty){
+  if(typeof difficulty === 'object' && difficulty !== null){
+    /* Already a config object — ensure margin is computed if blunderRate given */
+    if(difficulty.margin == null && difficulty.blunderRate != null){
+      difficulty.margin = blunderToMargin(difficulty.blunderRate);
+    }
+    return difficulty;
+  }
+  const p = PRESETS[difficulty] || PRESETS.medium;
+  return { depth: p.depth, margin: blunderToMargin(p.blunderRate), useDB: p.useDB };
+}
+
+/* --- Search --- */
+let abortFlag = false;
+let searchUseDB = true;  /* set by rootSearch based on config.useDB */
+
+function computeHash(h, turn){
+  return h.join(',') + '|' + turn;
+}
+
+function ttProbe(hash){
+  const idx = Math.abs(hashToInt(hash)) % TT_SIZE;
+  const entry = tt[idx];
+  if(entry && entry.hash === hash) return entry;
+  return null;
+}
+
+function ttStore(hash, value, depth, bound, bestMove){
+  const idx = Math.abs(hashToInt(hash)) % TT_SIZE;
+  const existing = tt[idx];
+  /* Replace if empty or new entry has equal/greater depth */
+  if(!existing || depth >= existing.depth){
+    tt[idx] = { hash, value, depth, bound, bestMove };
+  }
+}
+
+function hashToInt(hash){
+  let h = 0;
+  for(let i = 0; i < hash.length; i++){
+    h = ((h << 5) - h + hash.charCodeAt(i)) | 0;
+  }
+  return h;
+}
+
+function negamax(s, rules, depth, alpha, beta, pline){
+  if(abortFlag) return 0;
+  const over = isOver(s, rules);
+  if(over.over){
+    const me = s.turn, diff = over.score[me] - over.score[me^1];
+    pline.length = 0;
+    if(diff > 0) return 100000 + depth;
+    if(diff < 0) return -100000 - depth;
+    return 0;
+  }
+
+  /* DB probe: if position falls within loaded layers, return exact value */
+  const bSeeds = boardSeeds(s);
+  if(searchUseDB && bSeeds <= maxLoadedLayer && layerHandles[bSeeds]){
+    const dbVal = dbProbe(s, rules);
+    if(dbVal != null){
+      pline.length = 0;
+      return dbValueToScore(dbVal, s, s.turn);
+    }
+  }
+
+  if(depth === 0){
+    pline.length = 0;
+    return evalDecisionTree(s, rules, s.turn);
+  }
+
+  /* Safe futility pruning (Requirement 12.4):
+     The maximum score mover can possibly achieve is score[me] + all remaining
+     board seeds (capturing everything). If that upper bound cannot exceed the
+     opponent's already-banked score, the position is provably lost — prune.
+     When maxPossible == score[opp], the best achievable outcome is a draw. */
+  const me = s.turn;
+  const maxPossible = s.score[me] + bSeeds;
+  if(maxPossible < s.score[me^1]){
+    pline.length = 0;
+    return -(100000 + depth);
+  }
+
+  /* TT lookup for cut-off and best-move hint */
+  const hash = computeHash(s.h, s.turn);
+  const ttEntry = ttProbe(hash);
+  const ttBestMove = ttEntry ? ttEntry.bestMove : null;
+
+  /* Enhanced transposition cut-off */
+  if(ttEntry && ttEntry.depth >= depth){
+    if(ttEntry.bound === 'exact'){ pline.length = 0; pline.push(ttEntry.bestMove); return ttEntry.value; }
+    if(ttEntry.bound === 'lower' && ttEntry.value >= beta){ pline.length = 0; pline.push(ttEntry.bestMove); return ttEntry.value; }
+    if(ttEntry.bound === 'upper' && ttEntry.value <= alpha){ pline.length = 0; pline.push(ttEntry.bestMove); return ttEntry.value; }
+  }
+
+  /* Move ordering: TT best move first, then captures descending, then quiet */
+  const rawMoves = legalMoves(s, rules);
+  const moves = orderMoves(s, rawMoves, rules, ttBestMove);
+
+  const origAlpha = alpha;
+  let best = -Infinity;
+  let bestMv = moves[0];
+  const childLine = [];
+  for(const mv of moves){
+    if(abortFlag) return best === -Infinity ? 0 : best;
+    childLine.length = 0;
+    const ns = applyMove(s, mv, rules).state;
+    const val = -negamax(ns, rules, depth - 1, -beta, -alpha, childLine);
+    if(val > best){
+      best = val;
+      bestMv = mv;
+      /* Update PV: this move + child PV */
+      pline.length = 0;
+      pline.push(mv);
+      for(let i = 0; i < childLine.length; i++) pline.push(childLine[i]);
+    }
+    if(best > alpha) alpha = best;
+    if(alpha >= beta) break;
+  }
+
+  /* Store in TT */
+  const bound = best <= origAlpha ? 'upper' : best >= beta ? 'lower' : 'exact';
+  ttStore(hash, best, depth, bound, bestMv);
+
+  return best;
+}
+
+function rootSearch(state, rules, config){
+  abortFlag = false;
+  searchUseDB = config.useDB !== false; /* default to true unless explicitly disabled */
+  const rawMoves = legalMoves(state, rules);
+  if(rawMoves.length === 0) return { bestMove: null, eval: 0, pv: [] };
+
+  const maxDepth = config.depth || 6;
+  const margin = config.margin != null ? config.margin : 0;
+
+  /* Iterative deepening: search at increasing depths.
+     If aborted mid-iteration, return best from last completed iteration. */
+  let bestResult = { bestMove: rawMoves[0], eval: 0, pv: [rawMoves[0]] };
+
+  for(let d = 1; d <= maxDepth; d++){
+    if(abortFlag) break;
+
+    /* TT lookup for best-move hint at root */
+    const hash = computeHash(state.h, state.turn);
+    const ttEntry = ttProbe(hash);
+    const ttBestMove = ttEntry ? ttEntry.bestMove : null;
+
+    /* Order moves: TT best move first, captures descending, then quiet */
+    const moves = orderMoves(state, rawMoves, rules, ttBestMove);
+
+    const scored = [];
+    let allDone = true;
+
+    for(const mv of moves){
+      if(abortFlag){ allDone = false; break; }
+      const pline = [];
+      const v = -negamax(applyMove(state, mv, rules).state, rules, d - 1, -Infinity, Infinity, pline);
+      scored.push({ mv, v, pv: [mv].concat(pline) });
+    }
+
+    if(!allDone || scored.length === 0) break; /* Aborted mid-iteration: keep previous best */
+
+    /* Completed this depth — update bestResult */
+    let bestVal = -Infinity;
+    for(const x of scored) if(x.v > bestVal) bestVal = x.v;
+
+    /* Store root in TT */
+    const bestEntry = scored.find(x => x.v === bestVal);
+    ttStore(hash, bestVal, d, 'exact', bestEntry.mv);
+
+    /* Apply blunder margin for difficulty variation */
+    const pool = isFinite(margin)
+      ? scored.filter(x => bestVal - x.v <= margin)
+      : scored;
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    bestResult = { bestMove: pick.mv, eval: pick.v, pv: pick.pv };
+  }
+
+  return bestResult;
+}
+
+/* --- Pondering state --- */
+let ponderResult = null;
+let isPondering = false;
+
+/* --- Message handler ---
+   Note: the Worker is single-threaded. rootSearch is synchronous, so incoming
+   messages (stop, ponderHit, ponderMiss, search) are queued and processed only
+   after the current rootSearch call returns. The abortFlag mechanism provides a
+   clean state-transition model: subsequent messages inspect/clear isPondering and
+   ponderResult to decide whether to use or discard the ponder outcome. */
+self.onmessage = function(e){
+  const msg = e.data;
+  switch(msg.type){
+    case 'init': {
+      /* Receive initial config: available DB layers with their binary data */
+      if(msg.dbLayers && Array.isArray(msg.dbLayers)){
+        for(const entry of msg.dbLayers){
+          if(typeof entry === 'object' && entry.layer != null && entry.data){
+            layerHandles[entry.layer] = new Uint8Array(entry.data);
+          }
+        }
+        updateMaxLoadedLayer();
+      }
+      ttClear();
+      self.postMessage({ type:'ready' });
+      break;
+    }
+    case 'search': {
+      /* A new search cancels any in-progress or completed ponder */
+      abortFlag = false;
+      isPondering = false;
+      ponderResult = null;
+      const config = difficultyToConfig(msg.difficulty);
+      const result = rootSearch(msg.state, msg.rules, config);
+      /* Always send a result (even if aborted — rootSearch returns best-so-far) */
+      self.postMessage({ type:'result', bestMove:result.bestMove, eval:result.eval, pv:result.pv });
+      break;
+    }
+    case 'stop': {
+      abortFlag = true;
+      /* Pondering is also cancelled by stop — discard any stored result */
+      isPondering = false;
+      ponderResult = null;
+      break;
+    }
+    case 'ponder': {
+      /* Begin searching the expected reply position during human's turn.
+         Req 13.1: start ponder search on the predicted position.
+         Req 13.4: abortFlag is checked each iteration so a queued stop/search
+         will cleanly terminate this search once it processes. */
+      abortFlag = false;
+      isPondering = true;
+      ponderResult = null;
+      const config = difficultyToConfig(msg.difficulty || 'hard');
+      const result = rootSearch(msg.state, msg.rules, config);
+      /* Store result only if pondering wasn't cancelled by a prior queued message */
+      if(!abortFlag && isPondering){
+        ponderResult = result;
+      }
+      break;
+    }
+    case 'ponderHit': {
+      /* Req 13.2: human played the predicted move — return ponder result immediately */
+      isPondering = false;
+      if(ponderResult){
+        self.postMessage({ type:'result', bestMove:ponderResult.bestMove, eval:ponderResult.eval, pv:ponderResult.pv });
+      }
+      /* If ponderResult is null (e.g. ponder was stopped/cancelled), the main
+         thread should treat this as a no-op and fall back to a fresh search. */
+      ponderResult = null;
+      break;
+    }
+    case 'ponderMiss': {
+      /* Req 13.3: human played a different move — discard ponder, search actual position */
+      isPondering = false;
+      ponderResult = null;
+      abortFlag = false;
+      const config = difficultyToConfig(msg.difficulty || 'medium');
+      const result = rootSearch(msg.state, msg.rules, config);
+      self.postMessage({ type:'result', bestMove:result.bestMove, eval:result.eval, pv:result.pv });
+      break;
+    }
+    case 'dbLayerReady': {
+      /* New DB layer available — store binary data for synchronous probing */
+      if(msg.layer != null && msg.data){
+        layerHandles[msg.layer] = new Uint8Array(msg.data);
+        updateMaxLoadedLayer();
+      }
+      break;
+    }
+    default:
+      /* Unknown message type — ignore */
+      break;
+  }
+};
+`;
+
+/* --- Worker instantiation with fallback to main-thread search --- */
+let aiWorker = null;
+let workerAvailable = false;
+
+try {
+  const workerBlob = new Blob([WORKER_CODE], { type: 'application/javascript' });
+  const workerUrl = URL.createObjectURL(workerBlob);
+  aiWorker = new Worker(workerUrl);
+  workerAvailable = true;
+
+  aiWorker.onerror = function(err) {
+    console.warn('[AI Worker] Error:', err.message || err);
+    workerAvailable = false;
+    aiWorker = null;
+  };
+} catch (e) {
+  console.warn('[AI Worker] Failed to instantiate, falling back to main-thread search:', e);
+  workerAvailable = false;
+  aiWorker = null;
+}
+
+/* ===========================================================================
+   Storage Manager — OPFS primary, IndexedDB fallback for EDB layer persistence
+   =========================================================================== */
+const StorageManager = {
+  storageType: 'none',   // 'opfs' | 'indexeddb' | 'none'
+  _opfsRoot: null,       // FileSystemDirectoryHandle (OPFS root)
+  _idb: null,            // IDBDatabase instance
+
+  async init() {
+    // Detect OPFS availability
+    if (typeof navigator !== 'undefined' && navigator.storage && navigator.storage.getDirectory) {
+      try {
+        this._opfsRoot = await navigator.storage.getDirectory();
+        this.storageType = 'opfs';
+        return;
+      } catch (e) {
+        console.warn('[StorageManager] OPFS detection failed, trying IndexedDB:', e);
+      }
+    }
+    // Fall back to IndexedDB
+    if (typeof indexedDB !== 'undefined') {
+      try {
+        this._idb = await this._openIDB();
+        this.storageType = 'indexeddb';
+      } catch (e) {
+        console.warn('[StorageManager] IndexedDB unavailable:', e);
+        this.storageType = 'none';
+      }
+    }
+  },
+
+  _openIDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open('oware-edb', 1);
+      req.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('layers')) {
+          db.createObjectStore('layers');
+        }
+      };
+      req.onsuccess = (e) => resolve(e.target.result);
+      req.onerror = (e) => reject(e.target.error);
+    });
+  },
+
+  /* --- hasLayer(s): check if layer s is already stored --- */
+  async hasLayer(s) {
+    if (this.storageType === 'opfs') {
+      try {
+        await this._opfsRoot.getFileHandle(`layer-${s}.bin`, { create: false });
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+    if (this.storageType === 'indexeddb') {
+      return new Promise((resolve) => {
+        const tx = this._idb.transaction('layers', 'readonly');
+        const store = tx.objectStore('layers');
+        const req = store.getKey(s);
+        req.onsuccess = () => resolve(req.result !== undefined);
+        req.onerror = () => resolve(false);
+      });
+    }
+    return false;
+  },
+
+  /* --- storeLayer(s, data): persist an ArrayBuffer for layer s --- */
+  async storeLayer(s, data) {
+    if (this.storageType === 'opfs') {
+      const fileHandle = await this._opfsRoot.getFileHandle(`layer-${s}.bin`, { create: true });
+      const writable = await fileHandle.createWritable();
+      await writable.write(data);
+      await writable.close();
+      return;
+    }
+    if (this.storageType === 'indexeddb') {
+      return new Promise((resolve, reject) => {
+        const tx = this._idb.transaction('layers', 'readwrite');
+        const store = tx.objectStore('layers');
+        const req = store.put(data, s);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    }
+  },
+
+  /* --- getLayerHandle(s): retrieve layer data for Worker use ---
+     OPFS: returns the FileSystemFileHandle (Worker opens sync access handle itself)
+     IndexedDB: returns the ArrayBuffer (posted to Worker RAM) */
+  async getLayerHandle(s) {
+    if (this.storageType === 'opfs') {
+      try {
+        return await this._opfsRoot.getFileHandle(`layer-${s}.bin`, { create: false });
+      } catch (e) {
+        return null;
+      }
+    }
+    if (this.storageType === 'indexeddb') {
+      return new Promise((resolve) => {
+        const tx = this._idb.transaction('layers', 'readonly');
+        const store = tx.objectStore('layers');
+        const req = store.get(s);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => resolve(null);
+      });
+    }
+    return null;
+  }
+};
+
+/* ===========================================================================
+   Progressive Loader — background-fetch EDB layers in tier order
+   Lite tier: layers 2..12,  Full tier: layers 13..15
+   Non-blocking async; exponential backoff on failure (1s, 2s, 4s → skip)
+   =========================================================================== */
+const ProgressiveLoader = {
+  LITE_LAYERS: Array.from({length: 11}, (_, i) => i + 2),   // 2..12
+  FULL_LAYERS: [13, 14, 15],                                 // 13..15
+  MAX_RETRIES: 3,
+  BASE_DELAY: 1000, // ms
+
+  _running: false,
+  _tierComplete: { lite: false, full: false },
+
+  async start() {
+    if (this._running) return;
+    if (StorageManager.storageType === 'none') {
+      console.log('[ProgressiveLoader] No storage backend — skipping layer fetch');
+      return;
+    }
+    this._running = true;
+    console.log('[ProgressiveLoader] Starting background layer fetch');
+
+    // Fetch lite tier first
+    await this._fetchTier(this.LITE_LAYERS);
+    this._tierComplete.lite = true;
+    console.log('[ProgressiveLoader] Lite tier complete (layers 2–12)');
+    updateAiStrength();
+
+    // Then full tier
+    await this._fetchTier(this.FULL_LAYERS);
+    this._tierComplete.full = true;
+    console.log('[ProgressiveLoader] Full tier complete (layers 13–15)');
+    updateAiStrength();
+
+    this._running = false;
+  },
+
+  async _fetchTier(layers) {
+    for (const s of layers) {
+      // Skip layers already persisted
+      const exists = await StorageManager.hasLayer(s);
+      if (exists) {
+        // Layer already stored — just notify Worker so it's aware
+        this._notifyWorker(s);
+        continue;
+      }
+      await this._fetchLayerWithRetry(s);
+    }
+  },
+
+  async _fetchLayerWithRetry(s) {
+    for (let attempt = 0; attempt < this.MAX_RETRIES; attempt++) {
+      try {
+        const resp = await fetch(`edb/layer-${s}.bin`);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.arrayBuffer();
+        // Persist to OPFS/IndexedDB
+        await StorageManager.storeLayer(s, data);
+        // Notify Worker
+        this._notifyWorker(s, data);
+        console.log(`[ProgressiveLoader] Layer ${s} fetched and stored`);
+        return; // success
+      } catch (e) {
+        const delay = this.BASE_DELAY * Math.pow(2, attempt); // 1s, 2s, 4s
+        console.warn(`[ProgressiveLoader] Layer ${s} attempt ${attempt + 1} failed:`, e.message, `— retrying in ${delay}ms`);
+        await this._sleep(delay);
+      }
+    }
+    // All retries exhausted — skip this layer
+    console.warn(`[ProgressiveLoader] Layer ${s} skipped after ${this.MAX_RETRIES} failed attempts`);
+  },
+
+  _notifyWorker(s, data) {
+    if (!aiWorker || !workerAvailable) return;
+    if (StorageManager.storageType === 'indexeddb' && data) {
+      // IndexedDB: send the ArrayBuffer directly to Worker RAM
+      aiWorker.postMessage(
+        { type: 'dbLayerReady', layer: s, storageType: 'indexeddb', data: data },
+        [data]  // transfer ownership for zero-copy
+      );
+    } else if (StorageManager.storageType === 'indexeddb' && !data) {
+      // Already-stored layer — need to read it out and send to Worker
+      StorageManager.getLayerHandle(s).then(buf => {
+        if (buf && aiWorker && workerAvailable) {
+          const copy = buf.slice(0); // copy so we can transfer
+          aiWorker.postMessage(
+            { type: 'dbLayerReady', layer: s, storageType: 'indexeddb', data: copy },
+            [copy]
+          );
+        }
+      });
+    } else {
+      // OPFS: Worker can open its own sync access handle — just notify layer number
+      aiWorker.postMessage({ type: 'dbLayerReady', layer: s, storageType: 'opfs' });
+    }
+  },
+
+  _sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+};
+
+/* --- AI Strength Indicator ---
+   Updates the label near the difficulty selector to reflect current DB tier.
+   Called on tier transitions during progressive loading. */
+function updateAiStrength() {
+  const el = document.getElementById('aiStrength');
+  if (!el) return;
+  let label;
+  if (ProgressiveLoader._tierComplete.full) {
+    label = 'AI: full (≤15)';
+  } else if (ProgressiveLoader._tierComplete.lite) {
+    label = 'AI: lite (≤12)';
+  } else {
+    label = 'AI: heuristic';
+  }
+  el.textContent = label;
+}
+
+/* Initialise Storage Manager (non-blocking — runs in background) */
+StorageManager.init().then(() => {
+  console.log('[StorageManager] Initialised, backend:', StorageManager.storageType);
+  /* Kick off progressive loading once storage is ready */
+  ProgressiveLoader.start();
+}).catch(e => {
+  console.warn('[StorageManager] Init failed:', e);
+});
+
+/* ===========================================================================
    UI controller — physical board: seeds as pips, counterclockwise sowing.
    =========================================================================== */
 const $ = id => document.getElementById(id);
 const reducedMotion = ()=> window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let state, rules, mode, difficulty, gameOver, lastLand=-1, lastFrom=-1, busy=false, previewOn=true, movesPlayed=0;
+let ponderExpectedMove = null; /* predicted human response (PV[1] from last AI search) */
 const houseEls = new Array(HOUSES);   /* DOM node per house index */
 
 function readRules(){
+  const termEl = $('termRule');
+  const endModeEl = $('endMode');
+  const repEl = $('repRule');
+  const cyclEl = $('cycleLimit');
   return {
     capture: $('capRule').value,
     grandslam: $('gsRule').value,
-    endMode: $('target').value==='49' ? 'allcap' : 'firstto',
+    terminal: termEl ? termEl.value : 'academic',
+    repetition: repEl ? repEl.value : 'split',
+    endMode: endModeEl ? endModeEl.value : 'firstto',
     target: 25,
-    cycleLimit: 100
+    cycleLimit: cyclEl ? parseInt(cyclEl.value, 10) : 100
   };
 }
 
-/* records in localStorage */
-function loadRecords(){
-  try{ return JSON.parse(localStorage.getItem('zako-oware-web')) || {}; }catch(e){ return {}; }
+/* ---- rules persistence in localStorage ---- */
+const RULES_STORAGE_KEY = 'zako-oware-rules';
+function saveRulesPrefs(){
+  const r = readRules();
+  try{ localStorage.setItem(RULES_STORAGE_KEY, JSON.stringify(r)); }catch(e){}
 }
-function saveRecords(r){ localStorage.setItem('zako-oware-web', JSON.stringify(r)); }
+function loadRulesPrefs(){
+  try{
+    const s = localStorage.getItem(RULES_STORAGE_KEY);
+    if(!s) return null;
+    return JSON.parse(s);
+  }catch(e){ return null; }
+}
+function applyRulesPrefs(){
+  const prefs = loadRulesPrefs();
+  if(!prefs) return;
+  if(prefs.capture && $('capRule')) $('capRule').value = prefs.capture;
+  if(prefs.grandslam && $('gsRule')) $('gsRule').value = prefs.grandslam;
+  if(prefs.terminal && $('termRule')) $('termRule').value = prefs.terminal;
+  if(prefs.repetition && $('repRule')) $('repRule').value = prefs.repetition;
+  if(prefs.endMode && $('endMode')) $('endMode').value = prefs.endMode;
+  if(prefs.cycleLimit !== undefined && $('cycleLimit')) $('cycleLimit').value = String(prefs.cycleLimit);
+}
+
+/* records in localStorage — per-profile */
+function recordsKey(){
+  if(mode==='cpu'){
+    const sel = profilesGetSelected();
+    const name = sel.south || 'Guest';
+    return 'zako-oware-records-' + (name === 'Guest' ? 'zako-oware-web' : name);
+  }
+  return 'zako-oware-records-zako-oware-web';
+}
+function loadRecords(){
+  try{ return JSON.parse(localStorage.getItem(recordsKey())) || {}; }catch(e){ return {}; }
+}
+function saveRecords(r){ localStorage.setItem(recordsKey(), JSON.stringify(r)); }
 function blankRec(){ return {w:0,l:0,d:0}; }
 function renderRecords(){
   const r = loadRecords();
@@ -806,6 +2099,11 @@ function renderRecords(){
     const rec = r[lvl] || blankRec();
     $('r-'+lvl+'-w').textContent=rec.w; $('r-'+lvl+'-l').textContent=rec.l; $('r-'+lvl+'-d').textContent=rec.d;
   }
+  /* Update header with profile name */
+  const sel = profilesGetSelected();
+  const name = (mode==='cpu') ? (sel.south || 'Guest') : 'Guest';
+  const h2 = $('recordsTitle');
+  if(h2) h2.textContent = 'Records \u00b7 ' + name;
 }
 function recordCpu(level, humanOutcome){
   const r = loadRecords(); const rec = r[level] || blankRec();
@@ -813,13 +2111,218 @@ function recordCpu(level, humanOutcome){
   r[level]=rec; saveRecords(r); renderRecords();
 }
 
+/* ===========================================================================
+   Per-pairing seed tally
+   Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 19.4
+   =========================================================================== */
+const TALLY_KEY = 'zako-oware-tally';
+
+function tallyLoad(){
+  try { const s=localStorage.getItem(TALLY_KEY); return s ? JSON.parse(s) : {}; } catch(e){ return {}; }
+}
+function tallySave(t){
+  try { localStorage.setItem(TALLY_KEY, JSON.stringify(t)); } catch(e){}
+}
+
+/** Returns the tally key for the current active pairing */
+function tallyPairingKey(){
+  if(mode==='cpu'){
+    return 'vs-cpu-'+difficulty;
+  }
+  /* 2P mode: sorted alphabetically */
+  const sel = profilesGetSelected();
+  const a = sel.south || 'Guest';
+  const b = sel.north || 'Guest';
+  const sorted = [a,b].sort((x,y)=>x.localeCompare(y,undefined,{sensitivity:'base'}));
+  return 'vs-'+sorted[0]+'-'+sorted[1];
+}
+
+/** Add final scores to the cumulative tally for the active pairing */
+function tallyRecord(scoreSouth, scoreNorth){
+  const key = tallyPairingKey();
+  const t = tallyLoad();
+  if(!t[key]) t[key] = { south:0, north:0 };
+  t[key].south += scoreSouth;
+  t[key].north += scoreNorth;
+  tallySave(t);
+  tallyRender();
+}
+
+/** Reset tally for the current active pairing only */
+function tallyResetCurrent(){
+  const key = tallyPairingKey();
+  const t = tallyLoad();
+  delete t[key];
+  tallySave(t);
+  tallyRender();
+}
+
+/** Render the tally display in the records plaque */
+function tallyRender(){
+  const el = $('tallyDisplay');
+  if(!el) return;
+  const key = tallyPairingKey();
+  const t = tallyLoad();
+  const rec = t[key];
+  let youLabel, oppLabel;
+  if(mode==='cpu'){
+    youLabel = 'You';
+    oppLabel = 'CPU ' + difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+  } else {
+    const sel = profilesGetSelected();
+    youLabel = sel.south || 'Guest';
+    oppLabel = sel.north || 'Guest';
+  }
+  /* In 2P mode with named players, always show (even zeroes) */
+  const show2p = (mode==='2p' && !(youLabel==='Guest' && oppLabel==='Guest'));
+  if(!rec || (rec.south===0 && rec.north===0)){
+    if(show2p){
+      el.innerHTML =
+        '<div class="tally-label">Seed Tally</div>' +
+        '<div class="tally-score">' +
+          youLabel + ' <span class="tally-num">0</span>' +
+          ' — ' +
+          '<span class="tally-num">0</span> ' + oppLabel +
+        '</div>';
+    } else {
+      el.innerHTML = '';
+    }
+    return;
+  }
+  el.innerHTML =
+    '<div class="tally-label">Seed Tally</div>' +
+    '<div class="tally-score">' +
+      youLabel + ' <span class="tally-num">' + rec.south + '</span>' +
+      ' — ' +
+      '<span class="tally-num">' + rec.north + '</span> ' + oppLabel +
+    '</div>';
+}
+
+/* ===========================================================================
+   2P Match History — per-pairing Win/Loss/Draw table (mirrors vs CPU records)
+   Stored in localStorage under 'zako-oware-2p-history'.
+   Structure: { [pairingKey]: { south: {w,l,d}, north: {w,l,d} } }
+   =========================================================================== */
+const MATCH_HISTORY_KEY = 'zako-oware-2p-history';
+
+function matchHistoryLoad(){
+  try { const s=localStorage.getItem(MATCH_HISTORY_KEY); return s ? JSON.parse(s) : {}; } catch(e){ return {}; }
+}
+function matchHistorySave(h){
+  try { localStorage.setItem(MATCH_HISTORY_KEY, JSON.stringify(h)); } catch(e){}
+}
+
+/** Record a 2P game result. outcome: 0=south wins, 1=north wins, 'draw' */
+function matchHistoryRecord(outcome){
+  if(mode !== '2p') return;
+  const sel = profilesGetSelected();
+  const south = sel.south || 'Guest';
+  const north = sel.north || 'Guest';
+  const key = [south, north].sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:'base'})).join('|');
+  const h = matchHistoryLoad();
+  if(!h[key]) h[key] = { players:[south, north], south:{w:0,l:0,d:0}, north:{w:0,l:0,d:0} };
+  /* Always store relative to the sorted key — figure out which side is which */
+  const southIsSorted0 = (key.split('|')[0].toLowerCase() === south.toLowerCase());
+  const p0 = southIsSorted0 ? 'south' : 'north';
+  const p1 = southIsSorted0 ? 'north' : 'south';
+  if(outcome === 'draw'){ h[key][p0].d++; h[key][p1].d++; }
+  else if(outcome === 0){ h[key][p0].w++; h[key][p1].l++; }
+  else { h[key][p0].l++; h[key][p1].w++; }
+  h[key].players = southIsSorted0 ? [south, north] : [north, south];
+  matchHistorySave(h);
+  matchHistoryRender();
+}
+
+/** Render the 2P match history table */
+function matchHistoryRender(){
+  const el = $('matchHistory');
+  if(!el) return;
+  if(mode !== '2p'){
+    el.classList.remove('show');
+    return;
+  }
+  const sel = profilesGetSelected();
+  const south = sel.south || 'Guest';
+  const north = sel.north || 'Guest';
+  if(south === 'Guest' && north === 'Guest'){
+    el.classList.remove('show');
+    return;
+  }
+  const key = [south, north].sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:'base'})).join('|');
+  const h = matchHistoryLoad();
+  const rec = h[key] || { south:{w:0,l:0,d:0}, north:{w:0,l:0,d:0} };
+  /* Figure out which stored side corresponds to current south/north */
+  const southIsSorted0 = (key.split('|')[0].toLowerCase() === south.toLowerCase());
+  const sStat = southIsSorted0 ? rec.south : rec.north;
+  const nStat = southIsSorted0 ? rec.north : rec.south;
+  const total = sStat.w + sStat.l + sStat.d;
+  el.classList.add('show');
+  el.innerHTML =
+    '<h3>Head to Head</h3>' +
+    '<table>' +
+    '<tr><th>Player</th><th>Won</th><th>Lost</th><th>Drawn</th><th>Played</th></tr>' +
+    '<tr><td>' + south + '</td>' +
+      '<td class="mh-highlight">' + sStat.w + '</td><td>' + sStat.l + '</td><td>' + sStat.d + '</td>' +
+      '<td>' + total + '</td></tr>' +
+    '<tr><td>' + north + '</td>' +
+      '<td class="mh-highlight">' + nStat.w + '</td><td>' + nStat.l + '</td><td>' + nStat.d + '</td>' +
+      '<td>' + total + '</td></tr>' +
+    '</table>' +
+    '<div style="margin-top:8px;text-align:right"><button class="btn" id="resetPairing">Reset pairing</button></div>';
+  const rb = $('resetPairing');
+  if(rb) rb.onclick = function(){
+    /* Clear match history for this pairing */
+    const hh = matchHistoryLoad();
+    delete hh[key];
+    matchHistorySave(hh);
+    /* Clear seed tally for this pairing */
+    tallyResetCurrent();
+    matchHistoryRender();
+  };
+}
+
+/* ---- numeral formatter (alternate display modes) ---- */
+const NUMERAL_MODES = ['arabic', 'binary', 'hex', 'tally', 'roman'];
+const NUMERAL_KEY = 'zako-oware-numeral';
+let numeralMode = 'arabic';
+
+function toRoman(n){
+  if(n===0) return '';
+  const vals=[40,10,9,5,4,1];
+  const syms=['XL','X','IX','V','IV','I'];
+  let out='';
+  for(let i=0;i<vals.length;i++) while(n>=vals[i]){ out+=syms[i]; n-=vals[i]; }
+  return out;
+}
+
+function formatNumeral(n, mode){
+  switch(mode){
+    case 'binary': return n.toString(2).padStart(6,'0');
+    case 'hex':    return n.toString(16).toUpperCase();
+    case 'tally':  { const fives=Math.floor(n/5), ones=n%5; return '\u{1D378}'.repeat(fives)+'·'.repeat(ones); }
+    case 'roman':  return toRoman(n);
+    default:       return String(n);
+  }
+}
+
+function numeralLoad(){
+  try{ const v=localStorage.getItem(NUMERAL_KEY); if(v && NUMERAL_MODES.includes(v)) numeralMode=v; }catch(e){}
+}
+function numeralSave(){
+  try{ localStorage.setItem(NUMERAL_KEY, numeralMode); }catch(e){}
+}
+
 /* ---- seed rendering: pips for small counts (capture range stays readable),
         numeral once a cup is too full to count at a glance ---- */
 function fillCup(node, count, dropLastPip){
   node.innerHTML='';
   if(count===0){ const s=document.createElement('span'); s.className='socket'; node.appendChild(s); return; }
-  if(count>15){
-    const c=document.createElement('span'); c.className='count'; c.textContent=count; node.appendChild(c); return;
+  /* Non-Arabic modes: always show formatted numeral regardless of count */
+  if(numeralMode!=='arabic' || count>15){
+    const c=document.createElement('span');
+    c.className='count'+(numeralMode==='binary'?' count-wide':'')+(numeralMode==='tally'?' count-tally':'');
+    c.textContent=formatNumeral(count, numeralMode);
+    node.appendChild(c); return;
   }
   const wrap=document.createElement('span');
   wrap.className='pips '+(count<=4?'few':count<=9?'mid':'many');
@@ -871,6 +2374,54 @@ function buildKeys(){
   }
 }
 
+/* ===========================================================================
+   Complexity Metric — shows how large the current layer is relative to full
+   state space. Indicates "solved" when boardSeeds falls within loaded DB.
+   =========================================================================== */
+const _cxCombCache = new Map();
+function cxComb(n, k){
+  if(k < 0 || k > n) return 0;
+  if(k === 0 || k === n) return 1;
+  if(k > n - k) k = n - k;
+  const key = (n << 16) | k;
+  if(_cxCombCache.has(key)) return _cxCombCache.get(key);
+  let result = 1;
+  for(let i = 0; i < k; i++){
+    result = result * (n - i) / (i + 1);
+  }
+  result = Math.round(result);
+  _cxCombCache.set(key, result);
+  return result;
+}
+
+const FULL_STATE_SPACE = 8.9e11;
+
+function getMaxLoadedLayer(){
+  if(ProgressiveLoader._tierComplete.full) return 15;
+  if(ProgressiveLoader._tierComplete.lite) return 12;
+  return 0;
+}
+
+function complexityRating(s){
+  const raw = cxComb(s + 11, 11);
+  const norm = s === 0 ? 0 : Math.round(Math.log(raw) / Math.log(FULL_STATE_SPACE) * 100);
+  const normalized = Math.max(0, Math.min(100, norm));
+  const solved = s <= getMaxLoadedLayer() && s > 0;
+  return { raw, normalized, solved };
+}
+
+function updateComplexity(){
+  const el = $('complexity');
+  if(!el) return;
+  const s = boardSeeds(state);
+  const { normalized, solved } = complexityRating(s);
+  const fillEl = $('cxFill');
+  const valEl = $('cxVal');
+  if(fillEl) fillEl.style.width = normalized + '%';
+  if(valEl) valEl.textContent = solved ? '✓' : normalized + '%';
+  el.classList.toggle('solved', solved);
+}
+
 function render(){
   const top=$('rowTop'), bot=$('rowBot'); top.innerHTML=''; bot.innerHTML='';
   const humanTurn = !gameOver && (mode==='2p' || state.turn===0);
@@ -881,11 +2432,18 @@ function render(){
 
   $('scoreTop').textContent=state.score[1];
   $('scoreBot').textContent=state.score[0];
-  $('whoTop').textContent = mode==='cpu' ? 'Computer' : 'Player 2';
-  $('whoBot').textContent = mode==='cpu' ? 'You' : 'Player 1';
-  $('storeLeft').classList.toggle('turn', state.turn===1 && !gameOver);
-  $('storeRight').classList.toggle('turn', state.turn===0 && !gameOver);
+  if(mode==='cpu'){
+    $('whoTop').textContent = 'Computer';
+    $('whoBot').textContent = 'You';
+  } else {
+    const sel = profilesGetSelected();
+    $('whoBot').textContent = sel.south;
+    $('whoTop').textContent = sel.north;
+  }
+  $('scoreBarTop').classList.toggle('turn', state.turn===1 && !gameOver);
+  $('scoreBarBot').classList.toggle('turn', state.turn===0 && !gameOver);
   buildKeys();
+  updateComplexity();
 }
 
 function setStatus(msg, cls){ const s=$('status'); s.textContent=msg; s.className='status'+(cls?' '+cls:''); }
@@ -930,9 +2488,9 @@ function setPreview(on){
   if(fb){ fb.classList.toggle('on', on); fb.setAttribute('aria-pressed', on?'true':'false'); fb.textContent = on?'◌ Preview':'◌ Preview off'; }
 }
 function pulseStore(prevScore){
-  if(state.score[0]>prevScore[0]) $('storeRight').classList.add('gain');
-  if(state.score[1]>prevScore[1]) $('storeLeft').classList.add('gain');
-  setTimeout(()=>{ $('storeLeft').classList.remove('gain'); $('storeRight').classList.remove('gain'); }, 360);
+  if(state.score[0]>prevScore[0]) $('scoreBarBot').classList.add('gain');
+  if(state.score[1]>prevScore[1]) $('scoreBarTop').classList.add('gain');
+  setTimeout(()=>{ $('scoreBarTop').classList.remove('gain'); $('scoreBarBot').classList.remove('gain'); }, 360);
 }
 
 function animateMove(pre, house, path, finalState, settle){
@@ -977,6 +2535,9 @@ function doMove(house, done){
     setStatus(msg, r.info.captured>0 ? 'cap' : null);
     pulseStore(prevScore);
     checkEnd();
+    /* Record position in hash history AFTER checking for repetition,
+       so future visits to this position will be detected as repeats */
+    state.hashHistory.add(positionHash(state));
     done();        /* clear busy / schedule AI BEFORE rendering, so cups re-enable */
     render();
   });
@@ -987,20 +2548,192 @@ function humanMove(house){
   const legal=legalMoves(state,rules);
   if(!legal.includes(house)){ setStatus('Not a legal house — pick another.','warn'); return; }
   busy=true;
+  /* --- Pondering: decide if we can use ponder result or need fresh search --- */
+  let ponderSent = false;
+  if(mode==='cpu' && aiWorker && workerAvailable && ponderExpectedMove != null){
+    if(house === ponderExpectedMove){
+      aiWorker.postMessage({ type:'ponderHit' });
+      ponderSent = true;
+    } else {
+      /* Compute the state after human's move for ponderMiss fresh search */
+      const afterHuman = applyMove(state, house, rules).state;
+      aiWorker.postMessage({
+        type: 'ponderMiss',
+        state: { h: afterHuman.h, score: afterHuman.score, turn: afterHuman.turn, ncp: afterHuman.ncp },
+        rules: rules,
+        difficulty: getAiSearchConfig()
+      });
+      ponderSent = true;
+    }
+    ponderExpectedMove = null;
+  }
   doMove(house, ()=>{
     busy=false;
     if(gameOver) return;
     if(mode==='cpu' && state.turn===1){
       busy=true; setStatus('Opponent considering…'); render();
-      setTimeout(aiTurn, 240);
+      if(ponderSent){
+        /* Worker already producing a result from ponderHit/ponderMiss — wait for it */
+        waitForPonderResult();
+      } else {
+        setTimeout(aiTurn, 240);
+      }
     }
   });
 }
 
-function aiTurn(){
-  const mv=chooseMove(state,rules,difficulty);
+function aiTurnFallback(){
+  /* Main-thread search — used when Worker is unavailable or errors */
+  const cfg = getAiSearchConfig();
+  const diff = (typeof cfg === 'string') ? cfg : 'medium';
+  const mv=chooseMove(state,rules,diff);
   if(mv===null){ busy=false; checkEnd(); render(); return; }
-  doMove(mv, ()=>{ busy=false; });
+  doMove(mv, ()=>{
+    busy=false;
+    ponderExpectedMove = null;
+  });
+}
+
+/* Wait for a ponder result (ponderHit or ponderMiss already sent to Worker).
+   Structurally mirrors aiTurn but skips sending a search message. */
+function waitForPonderResult(){
+  if(!aiWorker || !workerAvailable){
+    aiTurnFallback();
+    return;
+  }
+  const searchTimeout = setTimeout(function(){
+    console.warn('[AI Worker] Ponder result timeout — falling back');
+    try { aiWorker.postMessage({ type:'stop' }); } catch(e){}
+    aiTurnFallback();
+  }, 10000);
+
+  const onResult = function(e){
+    const msg = e.data;
+    if(msg.type !== 'result') return;
+    aiWorker.removeEventListener('message', onResult);
+    clearTimeout(searchTimeout);
+    const mv = msg.bestMove;
+    if(mv == null || mv < 0 || mv >= HOUSES){
+      console.warn('[AI Worker] Invalid ponder result:', mv, '— falling back');
+      aiTurnFallback();
+      return;
+    }
+    const legal = legalMoves(state, rules);
+    if(!legal.includes(mv)){
+      console.warn('[AI Worker] Ponder returned illegal move:', mv, '— falling back');
+      aiTurnFallback();
+      return;
+    }
+    doMove(mv, ()=>{
+      busy=false;
+      /* Start pondering for the next human move */
+      if(!gameOver && mode==='cpu' && aiWorker && workerAvailable && msg.pv && msg.pv.length >= 2){
+        const predictedHuman = msg.pv[1];
+        if(typeof predictedHuman === 'number' && predictedHuman >= 0 && predictedHuman < HOUSES){
+          ponderExpectedMove = predictedHuman;
+          aiWorker.postMessage({
+            type: 'ponder',
+            state: { h: state.h, score: state.score, turn: state.turn, ncp: state.ncp },
+            rules: rules,
+            difficulty: getAiSearchConfig()
+          });
+        } else {
+          ponderExpectedMove = null;
+        }
+      } else {
+        ponderExpectedMove = null;
+      }
+    });
+  };
+
+  aiWorker.addEventListener('message', onResult);
+  aiWorker.addEventListener('error', function onErr(err){
+    aiWorker.removeEventListener('message', onResult);
+    clearTimeout(searchTimeout);
+    console.warn('[AI Worker] Error during ponder wait:', err.message || err);
+    aiTurnFallback();
+  }, { once: true });
+}
+
+function aiTurn(){
+  if(!aiWorker || !workerAvailable){
+    aiTurnFallback();
+    return;
+  }
+  /* Post search request to Worker — main thread stays responsive */
+  const searchTimeout = setTimeout(function(){
+    /* Timeout safety: if Worker doesn't respond in 10s, send stop then fallback */
+    console.warn('[AI Worker] Search timeout — falling back to main-thread search');
+    try { aiWorker.postMessage({ type:'stop' }); } catch(e){}
+    aiTurnFallback();
+  }, 10000);
+
+  const onResult = function(e){
+    const msg = e.data;
+    if(msg.type !== 'result') return;
+    aiWorker.removeEventListener('message', onResult);
+    clearTimeout(searchTimeout);
+    const mv = msg.bestMove;
+    if(mv == null || mv < 0 || mv >= HOUSES){
+      /* Invalid result from Worker — fallback */
+      console.warn('[AI Worker] Invalid bestMove:', mv, '— falling back');
+      aiTurnFallback();
+      return;
+    }
+    /* Verify the move is legal before applying */
+    const legal = legalMoves(state, rules);
+    if(!legal.includes(mv)){
+      console.warn('[AI Worker] Returned illegal move:', mv, '— falling back');
+      aiTurnFallback();
+      return;
+    }
+    doMove(mv, ()=>{
+      busy=false;
+      /* --- Pondering: predict human's best reply from PV and start searching it --- */
+      if(!gameOver && mode==='cpu' && aiWorker && workerAvailable && msg.pv && msg.pv.length >= 2){
+        const predictedHuman = msg.pv[1];
+        /* Verify prediction is a plausible move index before sending */
+        if(typeof predictedHuman === 'number' && predictedHuman >= 0 && predictedHuman < HOUSES){
+          ponderExpectedMove = predictedHuman;
+          aiWorker.postMessage({
+            type: 'ponder',
+            state: { h: state.h, score: state.score, turn: state.turn, ncp: state.ncp },
+            rules: rules,
+            difficulty: getAiSearchConfig()
+          });
+        } else {
+          ponderExpectedMove = null;
+        }
+      } else {
+        ponderExpectedMove = null;
+      }
+    });
+  };
+
+  const onError = function(err){
+    aiWorker.removeEventListener('message', onResult);
+    clearTimeout(searchTimeout);
+    console.warn('[AI Worker] Error during search:', err.message || err);
+    aiTurnFallback();
+  };
+
+  aiWorker.addEventListener('message', onResult);
+  aiWorker.addEventListener('error', onError, { once: true });
+
+  try {
+    aiWorker.postMessage({
+      type: 'search',
+      state: { h: state.h, score: state.score, turn: state.turn, ncp: state.ncp },
+      rules: rules,
+      difficulty: getAiSearchConfig()
+    });
+  } catch(e){
+    aiWorker.removeEventListener('message', onResult);
+    clearTimeout(searchTimeout);
+    console.warn('[AI Worker] postMessage failed:', e);
+    workerAvailable = false;
+    aiTurnFallback();
+  }
 }
 
 function checkEnd(){
@@ -1018,13 +2751,27 @@ function checkEnd(){
     const hi=Math.max(o.score[0],o.score[1]), lo=Math.min(o.score[0],o.score[1]);
     msg='Player '+(o.outcome+1)+' wins '+hi+'–'+lo+'.'; cls='win';
   }
+  tallyRecord(o.score[0], o.score[1]);
+  if(mode==='2p') matchHistoryRecord(o.outcome);
   setStatus('Game over — '+msg, cls);
 }
 
 function newGame(){
-  mode=$('mode').value; difficulty=$('difficulty').value; rules=readRules();
+  mode=$('mode').value; difficulty=aiConfig.preset; rules=readRules();
   state=newState(); gameOver=false; lastLand=-1; lastFrom=-1; busy=false; movesPlayed=0;
+  ponderExpectedMove = null;
+  /* Clear Worker transposition table for new game */
+  if(aiWorker && workerAvailable){
+    aiWorker.postMessage({ type:'init', dbLayers:[] });
+  }
   $('difWrap').style.opacity = mode==='cpu' ? 1 : .4;
+  /* Show/hide AI config panel based on mode */
+  if(mode !== 'cpu') $('aiConfig').classList.remove('open');
+  /* Show/hide profiles panel and player selectors based on mode */
+  profilesUpdateVisibility();
+  tallyRender();
+  matchHistoryRender();
+  renderRecords();
   setStatus(mode==='cpu' ? 'Your move — pick one of your houses to sow.' : 'Player 1 to move.');
   render();
 }
@@ -1131,7 +2878,7 @@ function learnSetPace(p){ learnState.pace=p; const c=learnComputeUnlocked(); if(
 function learnReset(){ learnState.totalMoves=0; learnState.unlockedCount=2; learnState.seenIds=[]; learnSave(); learnUpdateBadge(); }
 
 /* ---- demo board: reuses fillCup + the real sowing rules ---- */
-function learnDemoRules(){ return { capture:'23', grandslam:'nocap', endMode:'firstto', target:25, cycleLimit:100 }; }
+function learnDemoRules(){ return { capture:'23', grandslam:'nocap', terminal:'academic', endMode:'firstto', target:25, cycleLimit:100 }; }
 function learnDrawBoard(cells, board){ for(let i=0;i<HOUSES;i++) fillCup(cells[i], board[i], false); }
 function learnRenderDemo(host, block){
   const gen=++learnDemoGen;
@@ -1246,10 +2993,21 @@ function learnCloseFull(){ learnDemoGen++; const o=$('learnFull'); o.hidden=true
 function learnAnyOpen(){ return !$('learnOverlay').hidden || !$('learnFull').hidden; }
 
 function toggleSettings(){ $('settings').classList.toggle('open'); }
+/* Save rules prefs whenever any rule selector changes */
+['capRule','gsRule','termRule','repRule','endMode','cycleLimit'].forEach(id=>{
+  const el=$(id); if(el) el.onchange=saveRulesPrefs;
+});
+/* Numeral mode selector: save + re-render immediately */
+(function(){
+  const el=$('numeralMode');
+  if(el){
+    el.onchange=function(){ numeralMode=el.value; numeralSave(); render(); };
+  }
+})();
 function concede(){
   if(gameOver||busy) return;
   const prevScore=state.score.slice();
-  const t=clone(state); collectSides(t); state.score=t.score;
+  const t=clone(state); collectSides(t, rules); state.score=t.score;
   for(let i=0;i<HOUSES;i++) state.h[i]=0;
   gameOver=true;
   const o=isOver(state,rules);
@@ -1258,6 +3016,8 @@ function concede(){
   setStatus('Conceded — '+tail+' '+state.score[0]+'–'+state.score[1]+'.',
             mode==='cpu'&&o.outcome===0?'win':'lose');
   if(mode==='cpu') recordCpu(difficulty, o.outcome===0?'win':'lose');
+  tallyRecord(state.score[0], state.score[1]);
+  if(mode==='2p') matchHistoryRecord(o.outcome);
   pulseStore(prevScore);
   render();
 }
@@ -1296,15 +3056,45 @@ const RES_GLYPHS = {
    so adding a paper to BIBLIOGRAPHY.md or a REPORT-*.md needs no code edit.
    See docs/RESOURCE-CONVENTIONS.md. */
 const RESOURCES = {
-  papers:{ glyph:'sheets', label:'Research papers', docs:[] },
-  reports:{ glyph:'report', label:'Reports', docs:[] },
-  overview:{ glyph:'nodes', label:'Overview', docs:[] },
-  bibliography:{ glyph:'book', label:'Bibliography', docs:[] }
+  papers:{ glyph:'sheets', label:'Research papers', docs:[
+    {file:'docs/research/papers/Allis-1994-Searching-for-Solutions-in-Games-and-AI.pdf',title:'Allis (1994) — Searching for Solutions in Games and AI',summary:'Foundational text on solving games. Defines solution strengths and introduces proof-number search.'},
+    {file:'docs/research/papers/Herik-Uiterwijk-Rijswijck-2002-Games-Solved-Now-and-in-the-Future.pdf',title:'Herik, Uiterwijk & van Rijswijck (2002) — Games Solved',summary:'Standard survey of state-space and game-tree complexities for ~25 games including Awari.'},
+    {file:'docs/research/papers/Broline-Loeb-1995-Combinatorics-of-Mancala-Ayo-Tchoukaillon.pdf',title:'Broline & Loeb (1995) — Combinatorics of Mancala',summary:'Pure mathematics of sowing/capture endgames. Seed count grows asymptotically like n²/π.'},
+    {file:'docs/research/papers/Heule-Rothkrantz-Solving-Games-Dependence-of-Applicable-Procedures.pdf',title:'Heule & Rothkrantz — Solving Games: Applicable Procedures',summary:'Maps solving techniques to game properties. Awari is convergent — why retrograde analysis works.'},
+    {file:'docs/research/papers/Set-Based-Retrograde-Analysis-2024.pdf',title:'Set-Based Retrograde Analysis (2024)',summary:'Modern symbolic/BDD-style approach to retrograde analysis for endgame tablebases.'},
+    {file:'docs/research/papers/CG2000-Proceedings-LNCS2063-Computers-and-Games.pdf',title:'CG 2000 Proceedings — Computers and Games',summary:'Contains van der Goot\'s Awari Retrograde Analysis and van Rijswijck\'s Learning from Perfection.'},
+    {file:'docs/research/papers/Lincke-2002-Computational-Limits-Exhaustive-Search.pdf',title:'Lincke (2002) — Computational Limits of Exhaustive Search',summary:'Deep treatment of retrograde analysis with limited memory. Primary source for the EDB design.'},
+    {file:'docs/research/papers/Supervised-vs-Unsupervised-ML-Awale-Mancala-Ayo-Player.pdf',title:'Supervised vs. Unsupervised ML for an Awale/Mancala Player',summary:'Compares ML techniques for evolving an Awari-playing agent.'},
+    {file:'docs/research/papers/Daoud-et-al-2004-Ayo-the-Awari-Player-Representation-Trumps-Search.pdf',title:'Daoud et al. (2004) — Ayo: Representation Trumps Search',summary:'Richer board representation beats raw search depth for Awari.'},
+    {file:'docs/research/papers/Irving-Donkers-Uiterwijk-2000-Solving-Kalah.pdf',title:'Irving, Donkers & Uiterwijk (2000) — Solving Kalah',summary:'Sister result on Kalah. Uses MTD(f), move ordering, TT, futility pruning, and endgame databases.'},
+    {file:'docs/research/2023-ACG-Solution-Methods.pdf',title:'ACG 2023 — Solution Methods for Games',summary:'Recent survey of algorithmic approaches to solving combinatorial games.'}
+  ] },
+  reports:{ glyph:'report', label:'Reports', docs:[
+    {file:'docs/research/REPORT-00-SYNTHESIS-engine-roadmap.md',title:'Synthesis: Engine Roadmap',summary:'High-level roadmap synthesizing all research findings into the engine development plan.'},
+    {file:'docs/research/REPORT-00-DEFENSE-architecture-decisions.md',title:'Defense: Architecture Decisions',summary:'Rationale for major architecture decisions grounded in the research findings.'},
+    {file:'docs/research/REPORT-01-foundations.md',title:'Report 01 — Foundational Papers',summary:'Close reading of the Maastricht school papers on solving games.'},
+    {file:'docs/research/REPORT-02-endgame-database-spec.md',title:'Report 02 — Endgame Database Spec',summary:'Implementation spec for a perfect-play endgame database via retrograde analysis.'},
+    {file:'docs/research/REPORT-03-combinatorics-broline-loeb.md',title:'Report 03 — Combinatorics (Broline & Loeb)',summary:'The pure mathematics of the Oware endgame: sowing patterns and 1/π.'},
+    {file:'docs/research/REPORT-04-solving-procedures-heule-rothkrantz.md',title:'Report 04 — Solving Procedures',summary:'Which solving procedures Oware needs based on its convergent game properties.'},
+    {file:'docs/research/REPORT-05-ml-player-randle.md',title:'Report 05 — ML Player (Randle et al.)',summary:'Strong AI without a giant tablebase? Supervised vs unsupervised ML comparison.'},
+    {file:'docs/research/REPORT-06-lincke-retrograde-and-cycles.md',title:'Report 06 — Lincke\'s Endgame Engineering',summary:'Lincke\'s Awari retrograde analysis and cycle handling.'},
+    {file:'docs/research/REPORT-07-vandergoot-forward-move-retrograde.md',title:'Report 07 — van der Goot\'s Forward-Move Retrograde',summary:'The algorithm our EDB builder uses, validated against the original.'},
+    {file:'docs/research/REPORT-08-vanrijswijck-learning-from-perfection.md',title:'Report 08 — Learning from Perfection',summary:'Mining perfect endgame databases to learn evaluation functions.'},
+    {file:'docs/research/REPORT-09-daoud-ayo-representation-vs-search.md',title:'Report 09 — Representation vs Search',summary:'How Ayo\'s richer representation outperforms deeper search.'},
+    {file:'docs/research/REPORT-10-irving-solving-kalah.md',title:'Report 10 — Solving Kalah',summary:'Lessons from solving Kalah: MTD(f), enhanced TT cut-offs, and endgame databases.'},
+    {file:'docs/research/REPORT-11-fang-chinese-chess-endgame-databases.md',title:'Report 11 — Chinese Chess Endgame Databases',summary:'Cross-domain endgame database engineering lessons applicable to Oware.'}
+  ] },
+  overview:{ glyph:'nodes', label:'Overview', docs:[
+    {file:'docs/oware-mathematical-architecture.md',title:'Mathematical Architecture & Pure-Game Mathematics',summary:'The mathematics realized in the program and the broader pure mathematics of Oware.'},
+    {file:'docs/architecture-decisions-v1.md',title:'Architecture Decisions — Engine v1',summary:'Key design choices: single-file approach, Worker architecture, EDB format, evaluation strategy.'},
+    {file:'docs/game-evolution-notes.md',title:'Game Evolution Notes',summary:'Design journal tracking the evolution of gameplay features, rule variants, and UI decisions.'}
+  ] },
+  bibliography:{ glyph:'book', label:'Bibliography', docs:[
+    {file:'docs/research/BIBLIOGRAPHY.md',title:'Oware / Awari — Research Bibliography',summary:'Full bibliography for the project. Downloaded PDFs in ./papers/.'}
+  ] }
 };
 const RES_ORDER = ['papers','reports','overview','bibliography'];
-/* Populate RESOURCES[*].docs from the generated manifest. Each doc is
-   {file, title, summary}. On failure (offline/file://) docs stay empty and
-   overlays show a graceful empty state. */
+/* Optionally refresh from manifest (supplements inline data if newer manifest available) */
 function resLoadManifest(cb){
   fetch('docs/resources-manifest.json').then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
     .then(m=>{ for(const k of RES_ORDER){ if(RESOURCES[k] && Array.isArray(m[k])) RESOURCES[k].docs=m[k]; } if(cb) cb(); })
@@ -1435,7 +3225,7 @@ function resRenderShell(){
   wrap.appendChild(body);
   const close=document.createElement('button'); close.className='btn learn-close'; close.textContent='✕ Close'; close.onclick=resClose;
   wrap.appendChild(close); host.appendChild(wrap);
-  if(key==='papers') pdfView(pane, set.docs[resDocIdx]);   /* Task 6 */
+  if(set.docs[resDocIdx] && set.docs[resDocIdx].file.endsWith('.pdf')) pdfView(pane, set.docs[resDocIdx]);
   else mdView(pane, set.docs[resDocIdx]);
 }
 function mdView(pane, doc){
@@ -1443,14 +3233,31 @@ function mdView(pane, doc){
   pane.innerHTML='<div class="res-status">Loading '+mdEscape(doc.title)+'…</div>';
   fetch(doc.file).then(r=>{ if(!r.ok) throw new Error(r.status); return r.text(); })
     .then(txt=>{ const div=document.createElement('div'); div.className='md-body'; div.innerHTML=mdRender(txt); pane.innerHTML=''; pane.appendChild(div); })
-    .catch(()=>{ pane.innerHTML='<div class="res-status">Couldn’t load this document. '+
-      '<a href="'+mdEscape(doc.file)+'" target="_blank" rel="noopener">Open it directly ↗</a></div>'; });
+    .catch(()=>{
+      pane.innerHTML='';
+      var frame=document.createElement('iframe');
+      frame.className='res-pdf'; frame.title=doc.title;
+      frame.src=doc.file; frame.style.background='#1b120c';
+      pane.appendChild(frame);
+      var meta=document.createElement('div');
+      meta.innerHTML='<a class="res-newtab" href="'+mdEscape(doc.file)+'" target="_blank" rel="noopener">Open in new tab ↗</a>';
+      pane.appendChild(meta);
+    });
 }
 function pdfView(pane, doc){
   pane.innerHTML='';
-  const frame=document.createElement('iframe'); frame.className='res-pdf';
-  frame.title=doc.title; frame.src=doc.file+'#view=FitH';
-  pane.appendChild(frame);
+  /* Use <object> with <iframe> fallback — works across browsers and hosting setups.
+     <object> is better supported for inline PDF rendering; iframe is the fallback. */
+  const obj=document.createElement('object');
+  obj.className='res-pdf'; obj.type='application/pdf';
+  obj.data=doc.file+'#view=FitH';
+  obj.title=doc.title;
+  /* Fallback content inside <object> for browsers that can't render PDFs inline */
+  const fallback=document.createElement('iframe');
+  fallback.className='res-pdf'; fallback.title=doc.title;
+  fallback.src=doc.file+'#view=FitH';
+  obj.appendChild(fallback);
+  pane.appendChild(obj);
   const meta=document.createElement('div');
   meta.innerHTML='<a class="res-newtab" href="'+mdEscape(doc.file)+'" target="_blank" rel="noopener">Open "'+mdEscape(doc.title)+'" in a new tab ↗</a>';
   pane.appendChild(meta);
@@ -1486,9 +3293,230 @@ if(location.search.indexOf('selftest')>=0){
   const pre=document.createElement('pre'); pre.id='selftest'; pre.textContent=log.join('\n'); document.body.appendChild(pre);
 }
 
+/* ===========================================================================
+   AI Configuration — depth / blunder / DB toggle / presets / localStorage
+   Requirements: 17.1, 17.2, 17.3, 17.4, 17.5, 17.6
+   =========================================================================== */
+const AI_CONFIG_KEY = 'zako-oware-ai';
+const AI_PRESETS = {
+  easy:   { depth: 4,  blunderRate: 60, useDB: false },
+  medium: { depth: 6,  blunderRate: 20, useDB: true },
+  hard:   { depth: 8,  blunderRate: 0,  useDB: true }
+};
+
+let aiConfig = { preset: 'medium', depth: 6, blunderRate: 20, useDB: true };
+
+function aiConfigLoad(){
+  try {
+    const s = localStorage.getItem(AI_CONFIG_KEY);
+    if(s){ const o = JSON.parse(s); if(o && typeof o === 'object') Object.assign(aiConfig, o); }
+  } catch(e){}
+}
+
+function aiConfigSave(){
+  try { localStorage.setItem(AI_CONFIG_KEY, JSON.stringify(aiConfig)); } catch(e){}
+}
+
+function aiConfigApplyToUI(){
+  $('aiPreset').value = aiConfig.preset;
+  $('difficulty').value = aiConfig.preset;
+  $('aiDepth').value = String(aiConfig.depth);
+  $('aiBlunder').value = String(aiConfig.blunderRate);
+  $('aiBlunderVal').textContent = aiConfig.blunderRate + '%';
+  $('aiUseDB').checked = aiConfig.useDB;
+}
+
+function aiConfigFromPreset(){
+  /* Called when the main difficulty selector or preset selector changes */
+  const p = $('aiPreset').value;
+  if(AI_PRESETS[p]){
+    aiConfig.preset = p;
+    aiConfig.depth = AI_PRESETS[p].depth;
+    aiConfig.blunderRate = AI_PRESETS[p].blunderRate;
+    aiConfig.useDB = AI_PRESETS[p].useDB;
+  } else {
+    aiConfig.preset = 'custom';
+  }
+  aiConfigApplyToUI();
+  aiConfigSave();
+  difficulty = aiConfig.preset;
+}
+
+function aiConfigSwitchToCustom(){
+  aiConfig.preset = 'custom';
+  $('aiPreset').value = 'custom';
+  $('difficulty').value = 'custom';
+  difficulty = 'custom';
+  aiConfigSave();
+}
+
+function aiConfigReadControls(){
+  aiConfig.depth = parseInt($('aiDepth').value, 10);
+  aiConfig.blunderRate = parseInt($('aiBlunder').value, 10);
+  aiConfig.useDB = $('aiUseDB').checked;
+  $('aiBlunderVal').textContent = aiConfig.blunderRate + '%';
+  aiConfigSwitchToCustom();
+}
+
+/* Get the SearchConfig object to pass to the Worker or main-thread search */
+function getAiSearchConfig(){
+  if(aiConfig.preset !== 'custom' && AI_PRESETS[aiConfig.preset]){
+    return aiConfig.preset; /* Worker's difficultyToConfig handles named presets */
+  }
+  /* Custom: pass full config object */
+  return { depth: aiConfig.depth, blunderRate: aiConfig.blunderRate, useDB: aiConfig.useDB };
+}
+
+function toggleAiConfig(){
+  $('aiConfig').classList.toggle('open');
+}
+
+/* Wire AI config controls */
+$('aiPreset').onchange = function(){
+  const p = this.value;
+  if(AI_PRESETS[p]){
+    aiConfig.preset = p;
+    aiConfig.depth = AI_PRESETS[p].depth;
+    aiConfig.blunderRate = AI_PRESETS[p].blunderRate;
+    aiConfig.useDB = AI_PRESETS[p].useDB;
+    $('difficulty').value = p;
+    difficulty = p;
+  } else {
+    aiConfig.preset = 'custom';
+    $('difficulty').value = 'custom';
+    difficulty = 'custom';
+  }
+  aiConfigApplyToUI();
+  aiConfigSave();
+  tallyRender();
+};
+$('aiDepth').onchange = aiConfigReadControls;
+$('aiBlunder').oninput = function(){
+  $('aiBlunderVal').textContent = this.value + '%';
+};
+$('aiBlunder').onchange = aiConfigReadControls;
+$('aiUseDB').onchange = aiConfigReadControls;
+
+/* Initialise AI config from localStorage */
+aiConfigLoad();
+aiConfigApplyToUI();
+difficulty = aiConfig.preset;
+
+/* ===========================================================================
+   Player Profiles — localStorage-backed name registration for 2P mode.
+   Requirements: 19.1, 19.2, 19.3, 19.5
+   =========================================================================== */
+const PROFILES_KEY = 'zako-oware-profiles';
+
+function profilesLoad(){
+  try {
+    const s = localStorage.getItem(PROFILES_KEY);
+    if(s){ const o = JSON.parse(s); if(o && Array.isArray(o.names)) return o.names; }
+  } catch(e){}
+  return [];
+}
+
+function profilesSave(names){
+  try { localStorage.setItem(PROFILES_KEY, JSON.stringify({ names })); } catch(e){}
+}
+
+function profileAdd(name){
+  const trimmed = name.trim();
+  if(!trimmed) return false;
+  const names = profilesLoad();
+  if(names.some(n => n.toLowerCase() === trimmed.toLowerCase())) return false; // duplicate
+  names.push(trimmed);
+  profilesSave(names);
+  return true;
+}
+
+function profileRemove(name){
+  const names = profilesLoad().filter(n => n !== name);
+  profilesSave(names);
+}
+
+function profilesRenderTags(){
+  const container = $('profileTags');
+  container.innerHTML = '';
+  const names = profilesLoad();
+  for(const name of names){
+    const tag = document.createElement('span');
+    tag.className = 'profile-tag';
+    tag.textContent = name;
+    const rm = document.createElement('button');
+    rm.className = 'rm';
+    rm.textContent = '×';
+    rm.title = 'Remove ' + name;
+    rm.setAttribute('aria-label', 'Remove profile ' + name);
+    rm.onclick = () => { profileRemove(name); profilesRenderTags(); profilesRenderSelectors(); };
+    tag.appendChild(rm);
+    container.appendChild(tag);
+  }
+}
+
+function profilesRenderSelectors(){
+  const names = profilesLoad();
+  const opts = '<option value="Guest">Guest</option>' + names.map(n => '<option value="'+n.replace(/"/g,'&quot;')+'">'+n.replace(/</g,'&lt;')+'</option>').join('');
+  $('selPlayer1').innerHTML = opts;
+  $('selPlayer2').innerHTML = opts;
+}
+
+function profilesUpdateVisibility(){
+  const is2p = $('mode').value === '2p';
+  $('profilesPanel').classList.toggle('open', is2p);
+  $('playerSelectors').classList.toggle('show', is2p);
+}
+
+function profilesGetSelected(){
+  return {
+    south: $('selPlayer1').value || 'Guest',
+    north: $('selPlayer2').value || 'Guest'
+  };
+}
+
+/* Wire up profile UI */
+$('profileAddBtn').onclick = () => {
+  const input = $('profileNameInput');
+  if(profileAdd(input.value)){
+    input.value = '';
+    profilesRenderTags();
+    profilesRenderSelectors();
+  }
+};
+$('profileNameInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    $('profileAddBtn').click();
+  }
+});
+/* Update board labels and tally when player selection changes */
+$('selPlayer1').onchange = () => { if(mode==='2p'){ render(); tallyRender(); matchHistoryRender(); } renderRecords(); };
+$('selPlayer2').onchange = () => { if(mode==='2p'){ render(); tallyRender(); matchHistoryRender(); } renderRecords(); };
+
+/* Initialise profiles UI */
+profilesRenderTags();
+profilesRenderSelectors();
+profilesUpdateVisibility();
+
 $('newgame').onclick=newGame;
 $('mode').onchange=newGame;
-$('difficulty').onchange=()=>{ difficulty=$('difficulty').value; };
+$('difficulty').onchange=()=>{ 
+  const v = $('difficulty').value;
+  if(AI_PRESETS[v]){
+    aiConfig.preset = v;
+    aiConfig.depth = AI_PRESETS[v].depth;
+    aiConfig.blunderRate = AI_PRESETS[v].blunderRate;
+    aiConfig.useDB = AI_PRESETS[v].useDB;
+  } else {
+    aiConfig.preset = 'custom';
+  }
+  difficulty = v;
+  aiConfigApplyToUI();
+  aiConfigSave();
+  tallyRender();
+  /* Open AI config panel if Custom selected */
+  if(v === 'custom') $('aiConfig').classList.add('open');
+};
 $('settingsBtn').onclick=toggleSettings;
 $('focusBtn').onclick=()=>document.body.classList.add('focus');
 $('exitFocus').onclick=()=>document.body.classList.remove('focus');
@@ -1500,8 +3528,10 @@ $('fNew').onclick=newGame;
 $('fConcede').onclick=concede;
 $('fRules').onclick=toggleSettings;
 $('resetRecords').onclick=()=>{ saveRecords({}); renderRecords(); };
+$('resetTally').onclick=()=>{ tallyResetCurrent(); };
 $('learnBtn').onclick=learnOpenOverlay;
 $('fLearn').onclick=learnOpenFull;
+$('aiStrength').onclick=toggleAiConfig;
 
 learnUpdateBadge();
 hueApply(hueLoad()); hueRenderPicker();
@@ -1509,6 +3539,12 @@ resLoadManifest(); resRailRender();
 lessonBadgeUpdate();
 resRoute();
 renderRecords();
+tallyRender();
+matchHistoryRender();
+applyRulesPrefs();
+numeralLoad();
+if($('numeralMode')) $('numeralMode').value = numeralMode;
+setPreview(previewOn);
 newGame();
 </script>
 </body>
