@@ -714,6 +714,8 @@
 .wiki-link{ color:var(--brass);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;
   text-decoration-color:var(--brass-dim);cursor:pointer;transition:text-decoration-color .2s }
 .wiki-link:hover{ text-decoration-color:var(--brass);text-decoration-style:solid }
+.wiki-person{ text-decoration-style:dashed }
+.wiki-popup-badge{ font-size:10px;background:var(--brass-dim);color:var(--loam);padding:1px 6px;border-radius:8px;vertical-align:middle }
 
 /* wiki popup */
 .wiki-popup{ position:fixed;z-index:52;background:var(--recess);border:1px solid #00000050;border-radius:10px;
@@ -742,6 +744,7 @@
   padding:3px 8px;border-radius:12px;cursor:pointer;transition:background .15s }
 .coll-sug-chip:hover{ background:var(--brass-dim);color:var(--loam) }
 .coll-sug-empty{ font-size:11px;color:var(--ink-faint);font-style:italic }
+.coll-sug-person{ border-style:dashed }
 
 /* detail modal */
 .coll-detail-overlay{ position:fixed;inset:0;z-index:50;background:#00000080;display:flex;align-items:center;justify-content:center }
@@ -3469,12 +3472,48 @@ const WIKI_TERMS = {
   'parity':'Parity_(mathematics)','convergence':'Convergence_(mathematics)',
   'finite game':'Finite_game','sequential game':'Sequential_game',
   'deterministic':'Deterministic_algorithm',
-  'knowledge representation':'Knowledge_representation_and_reasoning'
+  'knowledge representation':'Knowledge_representation_and_reasoning',
+  /* formulas & math concepts */
+  'bellman equation':'Bellman_equation','dynamic programming':'Dynamic_programming',
+  'monte carlo tree search':'Monte_Carlo_tree_search','mcts':'Monte_Carlo_tree_search',
+  'binary decision diagram':'Binary_decision_diagram','bdd':'Binary_decision_diagram',
+  'hockey-stick identity':'Hockey-stick_identity','hockey stick identity':'Hockey-stick_identity',
+  'binomial coefficient':'Binomial_coefficient','binomial coefficients':'Binomial_coefficient',
+  'big o notation':'Big_O_notation','monovariant':'Monovariant',
+  'cyclic group':'Cyclic_group','solved game':'Solved_game',
+  'minimax theorem':'Minimax_theorem','misère':'Mis%C3%A8re',
+  'strategy-stealing argument':'Strategy-stealing_argument',
+  'jenkins hash':'Jenkins_hash_function',
+  'nnue':'NNUE','stockfish':'Stockfish_(chess)',
+  'pearson correlation':'Pearson_correlation_coefficient',
+  'linear classifier':'Linear_classifier','boolean algebra':'Boolean_algebra',
+  'mean':'Mean','standard score':'Standard_score','piece mobility':'Piece_mobility',
+  'step function':'Step_function','predicate logic':'Predicate_(mathematical_logic)'
 };
 
-/* Build regex from dictionary keys (longest first for greedy match) */
-const _wikiKeys = Object.keys(WIKI_TERMS).sort((a,b)=>b.length-a.length);
+/* People dictionary — researchers, mathematicians, game scientists mentioned in reports */
+const WIKI_PEOPLE = {
+  'allis':'L._Victor_Allis','l. victor allis':'L._Victor_Allis','victor allis':'L._Victor_Allis',
+  'van den herik':'Jaap_van_den_Herik','jaap van den herik':'Jaap_van_den_Herik',
+  'ken thompson':'Ken_Thompson','thompson':'Ken_Thompson',
+  'paul erdős':'Paul_Erd%C5%91s','erdős':'Paul_Erd%C5%91s',
+  'carl friedrich gauss':'Carl_Friedrich_Gauss','gauss':'Carl_Friedrich_Gauss',
+  'marijn heule':'Marijn_Heule','heule':'Marijn_Heule',
+  'john romein':'John_Romein','romein':'John_Romein',
+  'henri bal':'Henri_Bal',
+  'alex de voogt':'Alex_de_Voogt','de voogt':'Alex_de_Voogt',
+  'thomas ströhlein':'Thomas_Str%C3%B6hlein','ströhlein':'Thomas_Str%C3%B6hlein',
+  'graham kendall':'Graham_Kendall',
+  'geoffrey irving':'Geoffrey_Irving',
+  'jos uiterwijk':'Jos_Uiterwijk','uiterwijk':'Jos_Uiterwijk',
+  'daniel loeb':'Daniel_E._Loeb'
+};
+
+/* Merge term + people dictionaries for unified linking */
+const _wikiAll = Object.assign({}, WIKI_TERMS, WIKI_PEOPLE);
+const _wikiKeys = Object.keys(_wikiAll).sort((a,b)=>b.length-a.length);
 const _wikiRe = new RegExp('\\b('+_wikiKeys.map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\b','gi');
+function _wikiIsPerson(key){ return key in WIKI_PEOPLE; }
 
 /** Post-process a .md-body element to add Wikipedia links to known terms */
 function wikiLinkTerms(el){
@@ -3496,15 +3535,17 @@ function wikiLinkTerms(el){
       /* only link first occurrence per text node to avoid clutter */
       if(seen.has(key)) continue;
       seen.add(key);
-      const article = WIKI_TERMS[key];
+      const article = _wikiAll[key];
       if(!article) continue;
+      const isPerson = _wikiIsPerson(key);
       if(m.index>last) frag.appendChild(document.createTextNode(txt.slice(last, m.index)));
       const a = document.createElement('span');
-      a.className = 'wiki-link';
+      a.className = 'wiki-link'+(isPerson?' wiki-person':'');
       a.textContent = m[0];
       a.title = 'Click for options';
       a.dataset.term = m[0];
       a.dataset.slug = article;
+      if(isPerson) a.dataset.person = '1';
       a.onclick = function(ev){ ev.preventDefault(); ev.stopPropagation(); wikiPopup(this); };
       frag.appendChild(a);
       last = m.index + m[0].length;
@@ -3522,6 +3563,7 @@ function _wikiPopupDocDown(e){ if(_wikiPopupEl && !_wikiPopupEl.contains(e.targe
 function wikiPopup(span){
   wikiPopupClose();
   const term=span.dataset.term, slug=span.dataset.slug;
+  const isPerson=span.dataset.person==='1';
   const url='https://en.wikipedia.org/wiki/'+slug;
   const rect=span.getBoundingClientRect();
 
@@ -3531,13 +3573,14 @@ function wikiPopup(span){
 
   /* header */
   const hdr=document.createElement('div'); hdr.className='wiki-popup-term'; hdr.textContent=term;
+  if(isPerson){ const badge=document.createElement('span'); badge.className='wiki-popup-badge'; badge.textContent='Person'; hdr.appendChild(document.createTextNode(' ')); hdr.appendChild(badge); }
   pop.appendChild(hdr);
 
   /* save row */
   const saveRow=document.createElement('div'); saveRow.className='wiki-popup-row';
   const saveLbl=document.createElement('span'); saveLbl.className='wiki-popup-label'; saveLbl.textContent='Save as';
   saveRow.appendChild(saveLbl);
-  ['term','formula','rule'].forEach(type=>{
+  ['term','formula','rule','people'].forEach(type=>{
     const btn=document.createElement('button'); btn.className='coll-sel-btn';
     btn.textContent=type.charAt(0).toUpperCase()+type.slice(1);
     btn.onclick=()=>{
@@ -3973,7 +4016,7 @@ function collRenderSidebar(host){
 
   /* type tabs */
   const tabs=document.createElement('div'); tabs.className='coll-tabs';
-  [{k:'term',l:'Terms'},{k:'formula',l:'Formulas'},{k:'block',l:'Blocks'},{k:'rule',l:'Rules'}].forEach(t=>{
+  [{k:'term',l:'Terms'},{k:'formula',l:'Formulas'},{k:'block',l:'Blocks'},{k:'rule',l:'Rules'},{k:'people',l:'People'}].forEach(t=>{
     const btn=document.createElement('button'); btn.className='coll-tab'+(t.k===collActiveTab?' sel':''); btn.textContent=t.l;
     btn.onclick=()=>{ collActiveTab=t.k; tabs.querySelectorAll('.coll-tab').forEach(b=>b.classList.remove('sel')); btn.classList.add('sel'); collRefreshCards(sb); };
     tabs.appendChild(btn);
@@ -4039,17 +4082,19 @@ function collRefreshSuggestions(sugList){
   let count=0;
   for(const [key, display] of found){
     if(saved.has(key)) continue;
-    if(count>=15) break;
-    const chip=document.createElement('button'); chip.className='coll-sug-chip';
+    if(count>=20) break;
+    const isPerson=_wikiIsPerson(key);
+    const saveType=isPerson?'people':'term';
+    const chip=document.createElement('button'); chip.className='coll-sug-chip'+(isPerson?' coll-sug-person':'');
     chip.textContent=display;
-    chip.title='Click to save as term';
+    chip.title='Click to save as '+(isPerson?'person':'term');
     chip.onclick=()=>{
       const source=(function(){ const set=RESOURCES[resCurrentKey]; if(set && set.docs[resDocIdx]) return set.docs[resDocIdx].title||set.label; return ''; })();
-      collAdd(collActiveProfile,'term',display,source);
-      collActiveTab='term';
-      const sb=document.getElementById('collSidebar'); if(sb){ sb.querySelectorAll('.coll-tab').forEach(b=>b.classList.remove('sel')); sb.querySelector('.coll-tab').classList.add('sel'); collRefreshCards(sb); }
+      collAdd(collActiveProfile,saveType,display,source);
+      collActiveTab=saveType;
+      const tabs=document.getElementById('collSidebar'); if(tabs){ const allTabs=['term','formula','block','rule','people']; tabs.querySelectorAll('.coll-tab').forEach((b,i)=>b.classList.toggle('sel',allTabs[i]===saveType)); collRefreshCards(tabs); }
       chip.remove();
-      collShowSaveToast('term');
+      collShowSaveToast(saveType);
     };
     sugList.appendChild(chip);
     count++;
@@ -4143,7 +4188,7 @@ function collInitSelection(){
     const saveGrp=document.createElement('div'); saveGrp.className='coll-sel-group';
     const saveLabel=document.createElement('span'); saveLabel.className='coll-sel-label'; saveLabel.textContent='Save';
     saveGrp.appendChild(saveLabel);
-    const types=['term','formula','block','rule'];
+    const types=['term','formula','block','rule','people'];
     types.forEach(type=>{
       const btn=document.createElement('button'); btn.className='coll-sel-btn';
       btn.textContent=type.charAt(0).toUpperCase()+type.slice(1);
@@ -4162,7 +4207,7 @@ function collInitSelection(){
 
     /* --- Wikipedia lookup --- */
     const lc=text.toLowerCase();
-    const wikiSlug=WIKI_TERMS[lc];
+    const wikiSlug=_wikiAll[lc];
     if(wikiSlug){
       const sep=document.createElement('div'); sep.className='coll-sel-sep';
       tb.appendChild(sep);
