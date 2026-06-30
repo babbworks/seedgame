@@ -4748,7 +4748,8 @@ document.addEventListener('click', function(e){
 
 learnUpdateBadge();
 hueApply(hueLoad()); hueRenderPicker();
-pageBgApply(pageBgLoad()); pageBgRenderBar();
+if(!document.body.classList.contains('has-bg-scene')) pageBgApply(pageBgLoad());
+pageBgRenderBar();
 resLoadManifest(); resRailRender();
 lessonBadgeUpdate();
 resRoute();
