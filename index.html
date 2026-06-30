@@ -331,12 +331,11 @@
 
   /* ---- player profiles ---- */
   .profiles-panel{
-    display:none;flex-direction:column;gap:10px;
+    display:flex;flex-direction:column;gap:10px;
     margin:10px auto 0;max-width:520px;
     padding:12px 14px;border-radius:12px;
     background:#00000028;border:1px solid #00000040;
   }
-  .profiles-panel.open{ display:flex }
   .profiles-panel h3{
     font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
     color:var(--brass-dim);margin:0;
@@ -4203,7 +4202,6 @@ function profilesRenderSelectors(){
 
 function profilesUpdateVisibility(){
   const is2p = $('mode').value === '2p';
-  $('profilesPanel').classList.toggle('open', is2p);
   /* CPU: show inline player dropdown, hide 2P selectors.  2P: opposite. */
   $('selPlayer1').style.display = is2p ? 'none' : '';
   $('playerSelectors').classList.toggle('show', is2p);
