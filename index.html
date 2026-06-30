@@ -435,7 +435,10 @@
     display:flex;flex-direction:column;gap:6px;align-items:flex-start;
     padding:10px;
   }
-  .game-actions .btn{ box-shadow:0 2px 10px #00000060;font-size:12px;padding:6px 12px }
+  .game-actions .btn{ box-shadow:0 2px 10px #00000060;font-size:12px;padding:6px 12px;display:inline-flex;align-items:center;gap:5px }
+  .ga-icon{ display:none;flex-shrink:0 }
+  .ga-label{ }
+  .ga-divider{ display:none }
   .confirm-overlay{
     position:fixed;inset:0;z-index:55;background:#00000080;
     display:flex;align-items:center;justify-content:center;
@@ -557,10 +560,19 @@
   .res-stud .badge-dot{ top:-4px;right:-4px }
   body.focus .res-rail{ display:none }
   @media (max-width:520px){
-    .board-area{ flex-wrap:wrap }
-    .res-rail{ order:3;flex-direction:row;justify-content:center;width:100%;margin-top:10px;flex-basis:100% }
+    .board-area{ flex-wrap:wrap;justify-content:center }
+    /* both game-actions and res-rail share a row below board */
+    .res-rail{ order:3;flex-direction:row;justify-content:center;margin-top:10px;flex-basis:auto;width:auto }
     .res-stud .res-label{ right:auto;top:calc(100% + 6px);transform:translateY(-4px) }
     .res-stud:hover .res-label,.res-stud:focus-visible .res-label{ transform:translateY(0) }
+    .game-actions{
+      position:static;transform:none;flex-direction:row;justify-content:center;align-items:center;
+      order:3;padding:0;gap:4px;margin-top:10px;flex-basis:auto;
+    }
+    .game-actions .btn{ box-shadow:none;padding:6px 8px;font-size:0 }
+    .ga-icon{ display:inline-block }
+    .ga-label{ display:none }
+    .ga-divider{ display:block;width:1px;height:22px;background:var(--ink-faint);opacity:.3;flex-shrink:0;margin:0 4px }
   }
 
   /* ---- learning feature ---- */
@@ -624,7 +636,10 @@
   .demo-board{ display:flex;flex-direction:column;gap:clamp(6px,1.6vw,12px) }
   .demo-row{ display:grid;grid-template-columns:repeat(6,1fr);gap:clamp(6px,1.6vw,12px) }
   .demo-cap{ font-size:11px;color:var(--ink-faint);margin-top:8px;text-align:center;letter-spacing:.04em }
-  .learn-close{ position:fixed;top:14px;right:14px;z-index:41 }
+  .learn-close{ position:sticky;top:0;z-index:41;width:100%;text-align:center;background:var(--recess);
+    border:none;border-bottom:1px solid #00000040;color:var(--ink-dim);font:inherit;font-size:13px;
+    padding:7px 0;cursor:pointer;border-radius:0;letter-spacing:.3px;transition:background .15s }
+  .learn-close:hover{ background:var(--brass-dim);color:var(--loam) }
   /* ---- lesson-of-the-turn card ---- */
   .lesson-card{ position:fixed;z-index:38;left:50%;top:50%;transform:translate(-50%,-50%);
     width:min(92vw,440px);max-height:88vh;overflow:auto;
@@ -701,6 +716,9 @@
 .coll-card-text{ font-size:13px;color:var(--ink-dim);line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden }
 .coll-card-meta{ font-size:11px;color:var(--ink-faint);margin-top:4px }
 .coll-empty{ font-size:13px;color:var(--ink-faint);padding:14px 0;text-align:center }
+.coll-hint{ font-size:11px;color:var(--ink-faint);font-style:italic;margin-bottom:6px }
+.coll-source-link{ color:var(--brass);text-decoration:underline;text-decoration-style:dotted;cursor:pointer }
+.coll-source-link:hover{ text-decoration-style:solid }
 
 /* selection toolbar */
 .coll-sel-toolbar{ position:fixed;z-index:50;display:flex;gap:6px;align-items:center;background:var(--recess);border:1px solid #00000050;
@@ -827,6 +845,13 @@
     </div>
   </div>
     <div class="res-rail" id="resRail" role="group" aria-label="Learning resources"></div>
+  <div class="game-actions" id="gameActions">
+    <button class="btn btn--primary" id="newgame" title="New game"><svg class="ga-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8a6 6 0 0111.5-2.3M14 8A6 6 0 012.5 10.3"/><path d="M14 2v4h-4M2 14v-4h4"/></svg><span class="ga-label">New game</span></button>
+    <button class="btn" id="concede" title="Concede"><svg class="ga-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2v12M4 2l8 4-8 4"/></svg><span class="ga-label">Concede</span></button>
+    <button class="btn" id="endGameBtn" title="End game"><svg class="ga-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="10" height="10" rx="1.5"/></svg><span class="ga-label">End game</span></button>
+    <button class="btn" id="learnBtn" title="Learn"><svg class="ga-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12V4a1 1 0 011-1h10a1 1 0 011 1v8a1 1 0 01-1 1H3a1 1 0 01-1-1z"/><path d="M5 3v10M5 7h9"/></svg><span class="ga-label">Learn</span> <span class="badge" id="learnBadge"></span></button>
+    <div class="ga-divider" aria-hidden="true"></div>
+  </div>
   </div>
 
   <p class="status" id="status">Your move — pick one of your houses to sow.</p>
@@ -875,13 +900,6 @@
     <button class="btn iconbtn on" id="previewBtn" aria-pressed="true" title="Toggle move preview" aria-label="Toggle move preview"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M1.5 8c1.5-4 4.5-5.5 6.5-5.5s5 1.5 6.5 5.5c-1.5 4-4.5 5.5-6.5 5.5S3 12 1.5 8z"/></svg></button>
     <button class="btn iconbtn" id="focusBtn" title="Focus board" aria-label="Focus board"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6V3a1 1 0 011-1h3M10 2h3a1 1 0 011 1v3M14 10v3a1 1 0 01-1 1h-3M6 14H3a1 1 0 01-1-1v-3"/></svg></button>
     <div class="page-color-bar" id="pageColorBar" role="group" aria-label="Page background colour"></div>
-  </div>
-
-  <div class="game-actions" id="gameActions">
-    <button class="btn btn--primary" id="newgame">New game</button>
-    <button class="btn" id="concede">Concede</button>
-    <button class="btn" id="endGameBtn">End game</button>
-    <button class="btn" id="learnBtn">Learn <span class="badge" id="learnBadge"></span></button>
   </div>
 
   <div class="settings" id="settings">
@@ -3146,9 +3164,9 @@ function learnRenderLibrary(host, full){
   body.appendChild(list); body.appendChild(detail);
   wrap.appendChild(body);
 
-  const close=document.createElement('button'); close.className='btn learn-close'; close.textContent='✕ Close';
+  const close=document.createElement('button'); close.className='learn-close'; close.textContent='← Return to game';
   close.onclick=()=> full?learnCloseFull():learnCloseOverlay();
-  wrap.appendChild(close);
+  wrap.insertBefore(close, wrap.firstChild);
   host.appendChild(wrap);
 
   if(!learnSelId) learnSelId=LEARN[0].id;
@@ -3743,8 +3761,8 @@ function resRenderShell(){
   pane=document.createElement('div'); pane.className='res-pane'; body.appendChild(pane);
   if(isReports){ collRenderSidebar(body); }
   wrap.appendChild(body);
-  const close=document.createElement('button'); close.className='btn learn-close'; close.textContent='✕ Close'; close.onclick=resClose;
-  wrap.appendChild(close); host.appendChild(wrap);
+  const close=document.createElement('button'); close.className='learn-close'; close.textContent='← Return to game'; close.onclick=resClose;
+  wrap.insertBefore(close, wrap.firstChild); host.appendChild(wrap);
   if(set.docs[resDocIdx] && set.docs[resDocIdx].file.endsWith('.pdf')) pdfView(pane, set.docs[resDocIdx]);
   else mdView(pane, set.docs[resDocIdx]);
   if(isReports) collInitSelection();
@@ -4072,6 +4090,9 @@ function collRenderSidebar(host){
   sel.onchange=()=>{ collActiveProfile=sel.value; collRefreshCards(sb); };
   bar.appendChild(sel); sb.appendChild(bar);
 
+  const hint=document.createElement('div'); hint.className='coll-hint'; hint.textContent='Highlight anything to save it.';
+  sb.appendChild(hint);
+
   /* type tabs */
   const tabs=document.createElement('div'); tabs.className='coll-tabs';
   [{k:'term',l:'Terms'},{k:'formula',l:'Formulas'},{k:'block',l:'Blocks'},{k:'rule',l:'Rules'},{k:'people',l:'People'}].forEach(t=>{
@@ -4111,12 +4132,31 @@ function collRefreshCards(sidebar){
     const card=document.createElement('div'); card.className='coll-card';
     const txt=document.createElement('div'); txt.className='coll-card-text'; txt.textContent=item.text;
     const meta=document.createElement('div'); meta.className='coll-card-meta';
-    meta.textContent=(item.source?item.source+' · ':'')+new Date(item.createdAt).toLocaleDateString();
-    if(item.comments.length) meta.textContent+=' · '+item.comments.length+' note'+(item.comments.length>1?'s':'');
+    if(item.source){
+      const srcLink=document.createElement('a'); srcLink.className='coll-source-link'; srcLink.textContent=item.source;
+      srcLink.href='#'; srcLink.onclick=e=>{ e.preventDefault(); e.stopPropagation(); collNavigateToSource(item.source); };
+      meta.appendChild(srcLink); meta.appendChild(document.createTextNode(' · '));
+    }
+    meta.appendChild(document.createTextNode(new Date(item.createdAt).toLocaleDateString()));
+    if(item.comments.length) meta.appendChild(document.createTextNode(' · '+item.comments.length+' note'+(item.comments.length>1?'s':'')));
     card.appendChild(txt); card.appendChild(meta);
     card.onclick=()=>collOpenDetail(item.id);
     list.appendChild(card);
   });
+}
+
+/** Navigate to the report that matches a source title */
+function collNavigateToSource(source){
+  /* search all resource categories for a doc matching this source title */
+  for(const key of RES_ORDER){
+    const set=RESOURCES[key]; if(!set) continue;
+    for(let i=0;i<set.docs.length;i++){
+      if(set.docs[i].title===source){
+        resCurrentKey=key; resDocIdx=i; resRenderShell();
+        return;
+      }
+    }
+  }
 }
 
 /** Scan current report pane for wiki terms and show as clickable suggestions */
@@ -4186,7 +4226,13 @@ function collOpenDetail(itemId){
 
   /* meta */
   const meta=document.createElement('div'); meta.className='coll-detail-meta';
-  meta.textContent=(item.source?'Source: '+item.source+' · ':'')+new Date(item.createdAt).toLocaleDateString();
+  if(item.source){
+    meta.appendChild(document.createTextNode('Source: '));
+    const srcLink=document.createElement('a'); srcLink.className='coll-source-link'; srcLink.textContent=item.source;
+    srcLink.href='#'; srcLink.onclick=e=>{ e.preventDefault(); collCloseDetail(); collNavigateToSource(item.source); };
+    meta.appendChild(srcLink); meta.appendChild(document.createTextNode(' · '));
+  }
+  meta.appendChild(document.createTextNode(new Date(item.createdAt).toLocaleDateString()));
   card.appendChild(meta);
 
   /* comment thread */
