@@ -739,10 +739,17 @@
 @media (max-width:640px){ .res-body.has-coll{ grid-template-columns:1fr } }
 
 .coll-sidebar{ display:flex;flex-direction:column;gap:8px;position:sticky;top:16px;max-height:calc(100vh - 80px);overflow:hidden }
-.coll-profile-bar{ display:flex;align-items:center;gap:6px }
+.coll-profile-bar{ display:flex;align-items:center;gap:6px;flex-wrap:wrap }
 .coll-profile-bar label{ font-size:12px;color:var(--ink-faint);white-space:nowrap }
 .coll-profile-sel{ flex:1;min-width:0;background:var(--recess);border:1px solid #00000050;border-radius:7px;color:var(--ink);font:inherit;font-size:13px;padding:5px 8px;cursor:pointer }
 .coll-profile-sel:focus{ outline:2px solid var(--brass-bright);outline-offset:1px }
+.coll-add-player{ background:none;border:none;color:var(--brass);font:inherit;font-size:11px;cursor:pointer;padding:2px 0;margin-left:auto }
+.coll-add-player:hover{ text-decoration:underline }
+.coll-add-row{ display:flex;gap:4px;margin-top:4px }
+.coll-add-input{ flex:1;min-width:0;background:var(--recess);border:1px solid #00000050;border-radius:6px;color:var(--ink);font:inherit;font-size:12px;padding:5px 8px }
+.coll-add-input:focus{ outline:2px solid var(--brass-bright);outline-offset:1px }
+.coll-add-ok{ background:var(--brass-dim);border:1px solid var(--brass);border-radius:6px;color:var(--loam);font:inherit;font-size:11px;padding:4px 10px;cursor:pointer }
+.coll-add-ok:hover{ background:var(--brass) }
 .coll-tabs{ display:flex;gap:3px }
 .coll-tab{ flex:1;text-align:center;border:1px solid transparent;background:transparent;color:var(--ink-dim);
   cursor:pointer;font:inherit;font-size:12px;padding:7px 6px;border-radius:8px;transition:background .15s }
@@ -810,6 +817,10 @@
 .coll-sug-chip:hover{ background:var(--brass-dim);color:var(--loam) }
 .coll-sug-empty{ font-size:11px;color:var(--ink-faint);font-style:italic }
 .coll-sug-person{ border-style:dashed }
+.coll-dl-btn{ display:flex;align-items:center;gap:6px;margin:12px auto 4px;background:none;border:1px solid var(--brass-dim);
+  color:var(--brass);font:inherit;font-size:12px;padding:6px 14px;border-radius:6px;cursor:pointer;transition:background .15s,color .15s }
+.coll-dl-btn:hover{ background:var(--brass-dim);color:var(--loam) }
+.coll-dl-btn svg{ flex-shrink:0 }
 
 /* detail modal */
 .coll-detail-overlay{ position:fixed;inset:0;z-index:50;background:#00000080;display:flex;align-items:center;justify-content:center }
@@ -925,7 +936,7 @@
     <label>Scene
       <select id="bgScene">
         <option value="">None</option>
-        <option value="ouaga">Ouagadougou</option>
+        <option value="ouaga" selected>Ouagadougou</option>
         <option value="accra">Accra</option>
         <option value="kumasi">Kumasi</option>
         <option value="lagos">Lagos</option>
@@ -3867,15 +3878,18 @@ function resIsOpen(){ return !$('resScreen').hidden; }
 function resClose(){ learnDemoGen++; collCleanup(); const o=$('resScreen'); o.hidden=true; o.innerHTML=''; document.body.style.overflow=''; resCurrentKey=null; }
 function resOpen(key){ if(!RESOURCES[key]) return; resCurrentKey=key; resDocIdx=0;
   $('resScreen').hidden=false; document.body.style.overflow='hidden';
-  if(!RESOURCES[key].docs.length){ resLoadManifest(()=>resRenderShell()); } else { resRenderShell(); } }
+  const r=RESOURCES[key]; const hasDocs=r.sections ? r.sections.some(s=>s.docs.length) : (r.docs && r.docs.length);
+  if(!hasDocs){ resLoadManifest(()=>resRenderShell()); } else { resRenderShell(); } }
 function resRenderShell(){
   const key=resCurrentKey, set=RESOURCES[key]; const host=$('resScreen'); host.innerHTML='';
   const isReports = key==='reports';
-  const wrap=document.createElement('div'); wrap.className='learn-wrap'+(isReports?' coll-wide':'');
+  const isOverview = key==='overview' && set.sections;
+  const hasColl = isReports || isOverview;
+  const wrap=document.createElement('div'); wrap.className='learn-wrap'+(hasColl?' coll-wide':'');
   const top=document.createElement('div'); top.className='learn-top';
   const h2=document.createElement('h2'); h2.innerHTML='Owar<em>é</em> · '+set.label;
   top.appendChild(h2);
-  if(isReports){
+  if(hasColl){
     const tog=document.createElement('button'); tog.className='coll-toggle'; tog.textContent='Collections';
     tog.onclick=()=>{ const sb=document.getElementById('collSidebar'); if(sb) sb.classList.toggle('coll-open'); };
     top.appendChild(tog);
@@ -3891,9 +3905,8 @@ function resRenderShell(){
   top.appendChild(themeBar);
 
   wrap.appendChild(top);
-  const isOverview = key==='overview' && set.sections;
   const docs = isOverview ? (set.sections.find(s=>s.key===resOverviewSection)||set.sections[0]).docs : (set.docs||[]);
-  const body=document.createElement('div'); body.className='res-body'+(docs.length<2?' single':'')+(isReports?' has-coll':'');
+  const body=document.createElement('div'); body.className='res-body'+(docs.length<2?' single':'')+(hasColl?' has-coll':'');
   let pane;
 
   if(isOverview){
@@ -3926,7 +3939,7 @@ function resRenderShell(){
   }
 
   pane=document.createElement('div'); pane.className='res-pane'; body.appendChild(pane);
-  if(isReports){ collRenderSidebar(body); }
+  if(hasColl){ collRenderSidebar(body); }
   wrap.appendChild(body);
   const close=document.createElement('button'); close.className='learn-close'; close.textContent='← Return to game'; close.onclick=resClose;
   wrap.insertBefore(close, wrap.firstChild); host.appendChild(wrap);
@@ -3934,7 +3947,7 @@ function resRenderShell(){
   if(curDoc && curDoc.file.endsWith('.pdf')) pdfView(pane, curDoc);
   else if(curDoc && /\.(mjs|js|py|json)$/.test(curDoc.file)) codeView(pane, curDoc);
   else mdView(pane, curDoc);
-  if(isReports) collInitSelection();
+  if(hasColl) collInitSelection();
   resApplyReadTheme(host);
 }
 function mdView(pane, doc){
@@ -4263,6 +4276,41 @@ function collAddComment(profileName, itemId, text){
   if(item){ item.comments.push({ text:text, createdAt:new Date().toISOString() }); collSave(profileName, items); }
 }
 function collByType(profileName, type){ return collLoad(profileName).filter(i=>i.type===type); }
+function collDownload(){
+  const profile=collActiveProfile;
+  const items=collLoad(profile);
+  if(!items.length){ alert('No saved items to download.'); return; }
+  const types=['term','formula','block','rule','people'];
+  const labels={term:'Terms',formula:'Formulas',block:'Blocks',rule:'Rules',people:'People'};
+  const lines=['# My Oware Collection','','**Profile:** '+profile,'**Exported:** '+new Date().toLocaleString(),'**Items:** '+items.length,''];
+  types.forEach(t=>{
+    const group=items.filter(i=>i.type===t);
+    if(!group.length) return;
+    lines.push('## '+labels[t],'');
+    group.forEach((it,idx)=>{
+      lines.push('### '+(idx+1)+'. '+it.text.slice(0,80)+(it.text.length>80?'…':''));
+      lines.push('');
+      lines.push(it.text);
+      lines.push('');
+      if(it.source) lines.push('> Source: '+it.source);
+      lines.push('> Saved: '+new Date(it.createdAt).toLocaleString());
+      if(it.comments.length){
+        lines.push('','**Notes:**','');
+        it.comments.forEach(c=>{
+          lines.push('- '+c.text+'  ');
+          lines.push('  _'+new Date(c.createdAt).toLocaleString()+'_');
+        });
+      }
+      lines.push('','---','');
+    });
+  });
+  const blob=new Blob([lines.join('\n')],{type:'text/markdown'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='oware-collection-'+profile.toLowerCase().replace(/\s+/g,'-')+'.md';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
 
 /* --- sidebar --- */
 function collRenderSidebar(host){
@@ -4275,7 +4323,16 @@ function collRenderSidebar(host){
   const names=['Guest'].concat(profilesLoad());
   names.forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; if(n===collActiveProfile) o.selected=true; sel.appendChild(o); });
   sel.onchange=()=>{ collActiveProfile=sel.value; collRefreshCards(sb); };
-  bar.appendChild(sel); sb.appendChild(bar);
+  bar.appendChild(sel);
+  const addBtn=document.createElement('button'); addBtn.className='coll-add-player'; addBtn.textContent='+ Add Player'; addBtn.title='Add a new player profile';
+  const addRow=document.createElement('div'); addRow.className='coll-add-row'; addRow.hidden=true;
+  const addInp=document.createElement('input'); addInp.className='coll-add-input'; addInp.type='text'; addInp.placeholder='Player name…'; addInp.maxLength=20;
+  const addOk=document.createElement('button'); addOk.className='coll-add-ok'; addOk.textContent='Save';
+  const doAdd=()=>{ const n=addInp.value.trim(); if(!n) return; if(profileAdd(n)){ const o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); sel.value=n; collActiveProfile=n; collRefreshCards(sb); addInp.value=''; addRow.hidden=true; } else { addInp.focus(); } };
+  addOk.onclick=doAdd; addInp.onkeydown=e=>{ if(e.key==='Enter') doAdd(); };
+  addBtn.onclick=()=>{ addRow.hidden=!addRow.hidden; if(!addRow.hidden) addInp.focus(); };
+  addRow.appendChild(addInp); addRow.appendChild(addOk);
+  bar.appendChild(addBtn); sb.appendChild(bar); sb.appendChild(addRow);
 
   const hint=document.createElement('div'); hint.className='coll-hint'; hint.textContent='Highlight anything to save it.';
   sb.appendChild(hint);
@@ -4303,6 +4360,12 @@ function collRenderSidebar(host){
   sb.appendChild(sugWrap);
   /* populate after report loads */
   setTimeout(()=>collRefreshSuggestions(sugList), 600);
+
+  /* download button */
+  const dlBtn=document.createElement('button'); dlBtn.className='coll-dl-btn'; dlBtn.title='Download collection as Markdown';
+  dlBtn.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download';
+  dlBtn.onclick=collDownload;
+  sb.appendChild(dlBtn);
 
   host.appendChild(sb);
 }
