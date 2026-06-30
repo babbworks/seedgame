@@ -3229,7 +3229,7 @@ function concede(){
 /* ---- board colour (hue) picker: rotates every board colour together,
    preserving each element's lightness/contrast so all stay legible ---- */
 const HUE_KEY='zako-oware-hue';
-const HUES=[{deg:0,label:'Amber (default)'},{deg:-35,label:'Rose'},{deg:55,label:'Olive'},{deg:120,label:'Green'},{deg:170,label:'Teal'},{deg:215,label:'Blue'},{deg:275,label:'Violet'}];
+const HUES=[{deg:0,label:'Amber (default)'},{deg:-35,label:'Rose'},{deg:-60,label:'Pink'},{deg:55,label:'Olive'},{deg:120,label:'Green'},{deg:170,label:'Teal'},{deg:215,label:'Blue'},{deg:275,label:'Violet'}];
 function hueLoad(){ const v=parseInt(localStorage.getItem(HUE_KEY),10); return isNaN(v)?0:v; }
 function hueApply(deg){ const b=document.querySelector('.board'); if(b) b.style.filter = deg ? ('hue-rotate('+deg+'deg)') : ''; }
 function hueRenderPicker(){
@@ -3249,20 +3249,22 @@ const PAGE_BG_KEY='zako-oware-pagebg';
 const PAGE_COLORS=[
   {color:'',label:'Default'},
   {color:'#1b120c',label:'Dark Loam'},
-  {color:'#0d1117',label:'Charcoal'},
-  {color:'#121820',label:'Midnight'},
-  {color:'#0f1a14',label:'Forest'},
-  {color:'#1a1520',label:'Plum'},
-  {color:'#1c1008',label:'Espresso'},
   {color:'#181818',label:'Slate'},
-  {color:'#0e1520',label:'Navy'},
-  {color:'#15100a',label:'Cocoa'},
-  {color:'#1a0e0e',label:'Wine'},
-  {color:'#0a1210',label:'Deep Teal'},
-  {color:'#141414',label:'Graphite'},
+  {color:'#0d1117',label:'Charcoal'},
   {color:'#1e1409',label:'Bronze'},
-  {color:'#0c0c18',label:'Indigo'},
-  {color:'#100d08',label:'Ebony'}
+  {color:'#2a1a2a',label:'Plum'},
+  {color:'#0e1520',label:'Navy'},
+  {color:'#1a2e1a',label:'Forest'},
+  {color:'#2d1a1a',label:'Wine'},
+  {color:'#1a3038',label:'Teal'},
+  {color:'#3a2a18',label:'Caramel'},
+  {color:'#2e2040',label:'Violet'},
+  {color:'#2a3a2a',label:'Sage'},
+  {color:'#3a2028',label:'Rose'},
+  {color:'#1e3040',label:'Ocean'},
+  {color:'#38301a',label:'Olive'},
+  {color:'#3a1a28',label:'Berry'},
+  {color:'#1a3028',label:'Jade'}
 ];
 function pageBgLoad(){ return localStorage.getItem(PAGE_BG_KEY)||''; }
 function pageBgSave(c){ try{ localStorage.setItem(PAGE_BG_KEY,c); }catch(e){} }
