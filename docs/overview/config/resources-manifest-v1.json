@@ -1,0 +1,150 @@
+{
+  "papers": [
+    {
+      "file": "docs/research/papers/Allis-1994-Searching-for-Solutions-in-Games-and-AI.pdf",
+      "title": "Allis (1994) — Searching for Solutions in Games and AI",
+      "summary": "Foundational text on solving games. Defines ultra-weak, weak, and strong solution strengths. Introduces proof-number search and estimates Awari's search space."
+    },
+    {
+      "file": "docs/research/papers/Herik-Uiterwijk-Rijswijck-2002-Games-Solved-Now-and-in-the-Future.pdf",
+      "title": "Herik, Uiterwijk & van Rijswijck (2002) — Games Solved: Now and in the Future",
+      "summary": "Standard survey tabulating state-space and game-tree complexities for ~25 games including Awari. Best single overview of where Oware sits in the landscape of solved games."
+    },
+    {
+      "file": "docs/research/papers/Broline-Loeb-1995-Combinatorics-of-Mancala-Ayo-Tchoukaillon.pdf",
+      "title": "Broline & Loeb (1995) — Combinatorics of Mancala: Ayo, Tchoukaillon, and 1/π",
+      "summary": "Pure mathematics of sowing/capture endgames. Derives periodicity of winning patterns and proves seed count grows asymptotically like n²/π."
+    },
+    {
+      "file": "docs/research/papers/Heule-Rothkrantz-Solving-Games-Dependence-of-Applicable-Procedures.pdf",
+      "title": "Heule & Rothkrantz — Solving Games: Applicable Procedures",
+      "summary": "Maps which solving techniques (retrograde analysis, αβ, proof-number, databases) apply to which game properties. Awari is convergent — why retrograde analysis works."
+    },
+    {
+      "file": "docs/research/papers/Set-Based-Retrograde-Analysis-2024.pdf",
+      "title": "Set-Based Retrograde Analysis (2024)",
+      "summary": "Modern symbolic/BDD-style approach to retrograde analysis. Useful for computing or compressing endgame tablebases."
+    },
+    {
+      "file": "docs/research/papers/CG2000-Proceedings-LNCS2063-Computers-and-Games.pdf",
+      "title": "CG 2000 Proceedings (LNCS 2063) — Computers and Games",
+      "summary": "Contains van der Goot's Awari Retrograde Analysis and van Rijswijck's Learning from Perfection — two key Oware papers."
+    },
+    {
+      "file": "docs/research/papers/Lincke-2002-Computational-Limits-Exhaustive-Search.pdf",
+      "title": "Lincke (2002) — Computational Limits of Large Exhaustive Search",
+      "summary": "Deep treatment of retrograde analysis with limited memory and the value representation used for Awari endgame databases. Primary source for the EDB design."
+    },
+    {
+      "file": "docs/research/papers/Supervised-vs-Unsupervised-ML-Awale-Mancala-Ayo-Player.pdf",
+      "title": "Supervised vs. Unsupervised ML for an Awale/Mancala Player",
+      "summary": "Compares ML techniques for evolving an Awari-playing agent. Practical reference for a web-game-sized AI opponent."
+    },
+    {
+      "file": "docs/research/papers/Daoud-et-al-2004-Ayo-the-Awari-Player-Representation-Trumps-Search.pdf",
+      "title": "Daoud et al. (2004) — Ayo: Representation Trumps Search",
+      "summary": "Argues richer board representation beats raw search depth — relevant to whether evaluation features matter more than ply count."
+    },
+    {
+      "file": "docs/research/papers/Irving-Donkers-Uiterwijk-2000-Solving-Kalah.pdf",
+      "title": "Irving, Donkers & Uiterwijk (2000) — Solving Kalah",
+      "summary": "Sister result on Kalah variant. Uses iterative-deepening MTD(f), move ordering, TT, futility pruning, and endgame databases."
+    },
+    {
+      "file": "docs/research/2023-ACG-Solution-Methods.pdf",
+      "title": "ACG 2023 — Solution Methods for Games",
+      "summary": "Recent survey of algorithmic approaches to solving combinatorial games, covering modern advances in retrograde analysis and forward search."
+    }
+  ],
+  "reports": [
+    {
+      "file": "docs/research/REPORT-00-SYNTHESIS-engine-roadmap.md",
+      "title": "Synthesis: Engine Roadmap",
+      "summary": "High-level roadmap synthesizing all research findings into the oware-web engine development plan."
+    },
+    {
+      "file": "docs/research/REPORT-00-DEFENSE-architecture-decisions.md",
+      "title": "Defense: Architecture Decisions",
+      "summary": "Rationale for major architecture decisions in oware-web, grounded in the research findings."
+    },
+    {
+      "file": "docs/research/REPORT-01-foundations.md",
+      "title": "Report 01 — Foundational Papers",
+      "summary": "Close reading of the Maastricht school papers that define how the field talks about solving games."
+    },
+    {
+      "file": "docs/research/REPORT-02-endgame-database-spec.md",
+      "title": "Report 02 — Endgame Database Spec",
+      "summary": "Implementation spec for a perfect-play endgame database via retrograde analysis."
+    },
+    {
+      "file": "docs/research/REPORT-03-combinatorics-broline-loeb.md",
+      "title": "Report 03 — Combinatorics (Broline & Loeb)",
+      "summary": "The pure mathematics of the Oware endgame: sowing patterns, periodicity, and 1/π."
+    },
+    {
+      "file": "docs/research/REPORT-04-solving-procedures-heule-rothkrantz.md",
+      "title": "Report 04 — Solving Procedures (Heule & Rothkrantz)",
+      "summary": "Which solving procedures Oware actually needs, based on its convergent game properties."
+    },
+    {
+      "file": "docs/research/REPORT-05-ml-player-randle.md",
+      "title": "Report 05 — ML Player (Randle et al.)",
+      "summary": "Can we get a strong AI without a giant tablebase? Supervised vs unsupervised ML comparison."
+    },
+    {
+      "file": "docs/research/REPORT-06-lincke-retrograde-and-cycles.md",
+      "title": "Report 06 — Lincke's Endgame Engineering",
+      "summary": "Deep dive into Lincke's Awari retrograde analysis and cycle handling."
+    },
+    {
+      "file": "docs/research/REPORT-07-vandergoot-forward-move-retrograde.md",
+      "title": "Report 07 — van der Goot's Forward-Move Retrograde",
+      "summary": "The algorithm our EDB builder uses, validated against van der Goot's original."
+    },
+    {
+      "file": "docs/research/REPORT-08-vanrijswijck-learning-from-perfection.md",
+      "title": "Report 08 — van Rijswijck: Learning from Perfection",
+      "summary": "Mining perfect endgame databases to learn evaluation functions without shipping a 178 GB tablebase."
+    },
+    {
+      "file": "docs/research/REPORT-09-daoud-ayo-representation-vs-search.md",
+      "title": "Report 09 — Daoud: Representation vs Search",
+      "summary": "How Ayo's richer representation architecture outperforms deeper search."
+    },
+    {
+      "file": "docs/research/REPORT-10-irving-solving-kalah.md",
+      "title": "Report 10 — Irving: Solving Kalah",
+      "summary": "Lessons from solving the Kalah variant: MTD(f), enhanced TT cut-offs, and endgame databases."
+    },
+    {
+      "file": "docs/research/REPORT-11-fang-chinese-chess-endgame-databases.md",
+      "title": "Report 11 — Fang: Chinese Chess Endgame Databases",
+      "summary": "Cross-domain endgame database engineering lessons applicable to Oware's EDB."
+    }
+  ],
+  "overview": [
+    {
+      "file": "docs/oware-mathematical-architecture.md",
+      "title": "Mathematical Architecture & Pure-Game Mathematics",
+      "summary": "The mathematics realized in the program, the broader pure mathematics of Oware, and gaps between the two."
+    },
+    {
+      "file": "docs/architecture-decisions-v1.md",
+      "title": "Architecture Decisions — Engine v1",
+      "summary": "Key design choices for the v1 engine build: single-file approach, Worker architecture, EDB format, and evaluation strategy."
+    },
+    {
+      "file": "docs/game-evolution-notes.md",
+      "title": "Game Evolution Notes",
+      "summary": "Design journal tracking the evolution of gameplay features, rule variants, and UI decisions."
+    }
+  ],
+  "bibliography": [
+    {
+      "file": "docs/research/BIBLIOGRAPHY.md",
+      "title": "Oware / Awari — Research Bibliography",
+      "summary": "Full bibliography for the project. Downloaded PDFs live in ./papers/. Gated items list stable links."
+    }
+  ]
+}
